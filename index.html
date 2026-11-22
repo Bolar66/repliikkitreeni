@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+nhN5Po81kb2Thi4SnxGxgIG4LHcWMcbXi9sYvCi+JY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-zh/7mP3Ec8kySGmYJ5vPCmz46ZpGQ2q2Z5YVsiln3zo='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Repliikkitreeni</title>
 <meta name="description" content="Ruotsin suullisen kokeen harjoittelu: valitse roolisi ja opettele vuorosanasi vaihe vaiheelta.">
@@ -187,6 +187,37 @@ textarea{min-height:260px;font-size:.98rem;line-height:1.55;resize:vertical}
 .ctx mark{background:var(--sun-soft);color:var(--sun-ink);border-radius:4px;padding:0 3px;font-weight:700}
 .blankw{display:inline-block;min-width:4ch;border-bottom:2px solid currentColor}
 .mini.center{justify-content:center}
+
+/* Compact settings + touch sizing */
+.card.compact{padding:12px;gap:10px}
+.crow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.crow .csum{flex:1 1 auto;min-width:0;color:var(--muted);font-size:.88rem;font-weight:700}
+.who-chip.static{cursor:default}
+.card.compact .toggle.big button{padding:8px 6px;font-size:.85rem}
+.card > .btn{justify-self:start}
+@media (pointer: coarse){
+  .mini button{height:38px;min-width:38px;padding:0 12px;font-size:.8rem}
+  .mini svg{width:17px;height:17px}
+  .gap{height:1.6em;min-width:3ch;vertical-align:-0.45em}
+  .wchip{padding:7px 14px}
+  .chk input{width:22px;height:22px}
+  .pill{padding:9px 14px}
+  .toggle button{padding:9px 12px}
+  select{padding:8px 10px}
+}
+@media (max-width:560px){
+  .levels{grid-template-columns:repeat(3,1fr)}
+  .lvl{grid-template-columns:1fr;justify-items:center;text-align:center;padding:10px 6px;gap:4px}
+  .lvl b{grid-row:auto}
+  .lvl small{display:none}
+  .lvl span{font-size:.82rem}
+  .dock-inner{padding:8px 8px 8px 12px;gap:8px}
+  .progress{flex:1 1 70px}
+  .btn{padding:11px 14px}
+  .card{padding:14px;border-radius:16px}
+  .msg{max-width:100%}
+  .sv{font-size:1.05rem}
+}
 footer{color:var(--muted);font-size:.8rem;text-align:center;padding:8px 0 20px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
@@ -271,6 +302,7 @@ const S = {
   autoRead: !!LS.get("autoRead", false),
   rate: LS.get("rate", 0.9) == 0.7 ? 0.7 : 0.9,
   tab: LS.get("tab", "lines") === "words" ? "words" : "lines",
+  settingsOpen: false,
   dir: LS.get("dir", "sv-en") === "en-sv" ? "en-sv" : "sv-en",
   cards: null,
   view: "practice",
@@ -561,6 +593,18 @@ function render(){
   h += `<div class="toggle big" role="group" aria-label="Harjoitus">
       <button data-action="tab" data-v="lines" aria-pressed="${S.tab === "lines"}">Repliikit</button>
       <button data-action="tab" data-v="words" aria-pressed="${S.tab === "words"}">Vaikeat sanat</button></div>`;
+  if (role && !S.settingsOpen){
+    const lvNames = ["", "Kaikki", "Vihjeet", "Muistista"];
+    h += `<section class="card compact" aria-label="Asetukset">
+      <div class="crow"><span class="who-chip static" aria-pressed="true">${avatar(speakers, role)}${esc(role)}</span>
+      <span class="csum">${S.tab === "lines" ? (S.mode === "step" ? "Vuoro kerrallaan" : "Koko teksti") : (S.dir === "sv-en" ? "Ruotsi → englanti" : "Englanti → ruotsi")}</span>
+      <button class="pill" data-action="settings">Muuta</button></div>`;
+    if (S.tab === "lines"){
+      h += `<div class="toggle big" role="group" aria-label="Taso">${[1, 2, 3].map(n =>
+        `<button data-action="level" data-v="${n}" aria-pressed="${S.level === n}">${n} · ${lvNames[n]}</button>`).join("")}</div>`;
+    }
+    h += `</section>`;
+  } else {
   h += `<section class="card" aria-label="Asetukset">`;
   h += `<div class="group"><span class="label">Kuka olet?</span><div class="seg">`;
   for (const sp of speakers) h += `<button class="who-chip" data-action="role" data-v="${esc(sp)}" aria-pressed="${sp === role}">${avatar(speakers, sp)}${esc(sp)}</button>`;
@@ -585,7 +629,10 @@ function render(){
         <select id="rate" aria-label="Puhenopeus"><option value="0.7" ${S.rate === 0.7 ? "selected" : ""}>Hidas</option><option value="0.9" ${S.rate === 0.9 ? "selected" : ""}>Normaali</option></select>
       </div></div>`;
   }
-  h += `</div></section>`;
+  h += `</div>`;
+  if (role) h += `<button class="btn" data-action="settings">Valmis</button>`;
+  h += `</section>`;
+  }
 
   if (!role){
     h += `<section class="card hint-card"><h2>Valitse ensin roolisi</h2><p class="note">Valitse yltä, kenen vuorosanoja harjoittelet. Omat repliikkisi näkyvät oikealla keltaisina. Napauta mitä tahansa repliikkiä, niin näet sen englanniksi.</p></section>`;
@@ -781,6 +828,7 @@ app.addEventListener("click", e => {
     case "reveal": S.step.revealed = true; render(); break;
     case "grade": S.step.results[S.step.pos] = t.dataset.v === "1"; next(); break;
     case "restart": resetStep(); afterMove(); break;
+    case "settings": S.settingsOpen = !S.settingsOpen; render(); if (!S.settingsOpen){ const el = app.querySelector(".msg.current"); if (el) el.scrollIntoView({ block: "center" }); } break;
     case "tab": S.tab = t.dataset.v === "words" ? "words" : "lines"; LS.set("tab", S.tab); S.cards = null; render(); window.scrollTo(0, 0); break;
     case "dir": S.dir = t.dataset.v === "en-sv" ? "en-sv" : "sv-en"; LS.set("dir", S.dir); render(); break;
     case "wtoggle": case "wall": case "wnone": case "wauto": case "wadd": {
