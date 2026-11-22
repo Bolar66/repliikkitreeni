@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-DKHdAZwMBGuHyUiehVKvhdiLn6D3XsUFBJSZmOxsbAk='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-+nhN5Po81kb2Thi4SnxGxgIG4LHcWMcbXi9sYvCi+JY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Repliikkitreeni</title>
 <meta name="description" content="Ruotsin suullisen kokeen harjoittelu: valitse roolisi ja opettele vuorosanasi vaihe vaiheelta.">
@@ -172,6 +172,21 @@ textarea{min-height:260px;font-size:.98rem;line-height:1.55;resize:vertical}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 .sharebox{display:flex;gap:8px;flex-wrap:wrap}
 .sharebox input{flex:1 1 220px;min-width:0;font-size:.85rem}
+/* Hard words */
+.toggle.big{display:flex;align-self:stretch}
+.toggle.big button{flex:1;padding:9px 12px;font-size:.95rem}
+.wchips{display:flex;flex-wrap:wrap;gap:6px}
+.wchip{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 12px;font-size:.95rem}
+.wchip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue);font-weight:700}
+.flash{justify-items:center;text-align:center;padding:30px 18px;min-height:250px;align-content:center;gap:14px}
+.fw{font-family:var(--display);font-weight:800;font-size:clamp(2rem, 8vw, 2.8rem);letter-spacing:-.02em;line-height:1.1;overflow-wrap:anywhere}
+.fw.en-word{color:var(--blue)}
+.answer{font-size:1.35rem;font-weight:700;color:var(--blue);overflow-wrap:anywhere}
+.answer.sv-ans{font-family:var(--display);font-size:1.9rem;color:var(--ink)}
+.ctx{font-size:1rem;color:var(--muted);max-width:46ch;margin:0;overflow-wrap:anywhere}
+.ctx mark{background:var(--sun-soft);color:var(--sun-ink);border-radius:4px;padding:0 3px;font-weight:700}
+.blankw{display:inline-block;min-width:4ch;border-bottom:2px solid currentColor}
+.mini.center{justify-content:center}
 footer{color:var(--muted);font-size:.8rem;text-align:center;padding:8px 0 20px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
@@ -255,6 +270,9 @@ const S = {
   mode: LS.get("mode", "step") === "all" ? "all" : "step",
   autoRead: !!LS.get("autoRead", false),
   rate: LS.get("rate", 0.9) == 0.7 ? 0.7 : 0.9,
+  tab: LS.get("tab", "lines") === "words" ? "words" : "lines",
+  dir: LS.get("dir", "sv-en") === "en-sv" ? "en-sv" : "sv-en",
+  cards: null,
   view: "practice",
   editId: null, confirmDelete: false,
   share: null, incoming: null,
@@ -274,7 +292,7 @@ const getRole = script => LS.get(roleKey(script.id), null);
 const saveScripts = () => LS.set("scripts", S.scripts);
 function resetStep(){
   S.step = { pos: 0, revealed: false, results: {} };
-  S.wordRev.clear(); S.lineRev.clear(); S.openTr.clear(); S.share = null;
+  S.wordRev.clear(); S.lineRev.clear(); S.openTr.clear(); S.share = null; S.cards = null;
 }
 const newId = () => "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const initials = n => esc((n.trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2) || "?").toUpperCase());
@@ -373,6 +391,125 @@ function hintHTML(i, text, type){
   }).join("");
 }
 
+/* ---------- hard words ---------- */
+const STOP = new Set(`och att det som för med har till den inte jag var ett hon han men ska kan vill nu här där vad hur när vem
+mig dig sig oss era dem min din sin vår mitt ditt sitt mina dina sina våra också bara mycket lite eller från efter över under upp
+hem nej tack hej bra då än igen alla allt något någon man kanske mer mest ser gör blir får finns tycker ganska jaa okej
+ni de du vi en är på av om så ut in ja ju väl dom detta denna dessa här vara varit blev hade har haft göra går gick kom komma
+kommer säger sa sade tar tog åt mot hos utan vid sedan sen redan också aldrig alltid ofta inget ingen inga själv samma andra
+annan annat vilken vilket vilka varför eftersom därför medan innan just mina mitt mycket många mer sådan sådant`.split(/\s+/).filter(Boolean));
+const isHard = w => w.length >= 7 || /[åäö]/.test(w) || /(sj|skj|stj|tj|kj|sk[eiyäö]|rs|rt|rd|rn|ng)/.test(w);
+const normWord = w => w.toLowerCase().replace(/^['’-]+|['’-]+$/g, "");
+function wordsFor(lines, role, speakers){
+  const names = new Set(speakers.map(s => s.toLowerCase()));
+  const map = new Map();
+  for (const l of lines){
+    if (l.speaker !== role) continue;
+    for (const t of tokens(l.text)){
+      if (t.sp || !t.w) continue;
+      const w = normWord(t.w);
+      if (w.length < 3 || STOP.has(w) || names.has(w) || /^\d+$/.test(w)) continue;
+      if (!map.has(w)) map.set(w, l.text);
+    }
+  }
+  return map;
+}
+const wKey = (script, role) => "words:" + script.id + ":" + role;
+function selectedWords(script, role, map){
+  const saved = LS.get(wKey(script, role), null);
+  if (Array.isArray(saved)) return saved.filter(w => typeof w === "string" && w).map(w => w.slice(0, 40)).slice(0, 300);
+  return [...map.keys()].filter(isHard);
+}
+const setSelected = (script, role, arr) => LS.set(wKey(script, role), [...new Set(arr)].slice(0, 300));
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function ctxHTML(sentence, word, mode){
+  return tokens(sentence).map(t => {
+    if (t.sp) return " ";
+    if (t.w && normWord(t.w) === word)
+      return esc(t.pre) + (mode === "mark" ? `<mark>${esc(t.w)}</mark>` : `<span class="blankw" aria-label="piilotettu sana"></span>`) + esc(t.post);
+    return esc(t.pre + t.w + t.post);
+  }).join("");
+}
+function cardContext(){
+  const script = current(), lines = parse(script.text), role = getRole(script);
+  return { script, role, map: wordsFor(lines, role, speakersOf(lines)) };
+}
+function afterCard(){
+  render();
+  const C = S.cards;
+  const w = C && C.list[C.i];
+  if (w && !S.trMem[w] && !S.trState[w]) translate(w);
+  if (w && S.dir === "sv-en" && S.autoRead) speak(w);
+}
+function startCards(onlyMissed){
+  const { script, role, map } = cardContext();
+  let list = onlyMissed && S.cards ? [...S.cards.firstMiss] : selectedWords(script, role, map);
+  list = shuffle([...new Set(list)]);
+  if (!list.length) return;
+  S.cards = { list, i: 0, flipped: false, total: list.length, firstMiss: new Set() };
+  afterCard();
+}
+function renderWords(script, lines, speakers, role){
+  const map = wordsFor(lines, role, speakers);
+  if (S.cards) return renderCards(map);
+  const sel = selectedWords(script, role, map);
+  const selSet = new Set(sel);
+  const all = [...new Set([...map.keys(), ...sel])];
+  let h = `<section class="card"><div class="group"><span class="label">Roolin ${esc(role)} sanat</span>`;
+  h += all.length
+    ? `<p class="note">Siniset sanat tulevat harjoitukseen. Valitsin valmiiksi pitkät ja hankalasti äännettävät sanat. Napauta sanaa lisätäksesi tai poistaaksesi sen.</p>
+       <div class="wchips">${all.map(w => `<button class="wchip" data-action="wtoggle" data-w="${esc(w)}" aria-pressed="${selSet.has(w)}">${esc(w)}</button>`).join("")}</div>
+       <div class="tools-row"><button class="pill" data-action="wauto">Vain vaikeat</button><button class="pill" data-action="wall">Kaikki</button><button class="pill" data-action="wnone">Tyhjennä</button></div>`
+    : `<p class="note">Roolin repliikeistä ei löytynyt harjoiteltavia sanoja. Voit lisätä omia alla.</p>`;
+  h += `<div class="sharebox"><input type="text" id="wordInput" maxlength="40" placeholder="Lisää oma sana tai sanonta" aria-label="Lisää oma sana"><button class="btn sec" data-action="wadd">Lisää</button></div></div>
+    <div class="group"><span class="label">Suunta</span><div class="toggle">
+      <button data-action="dir" data-v="sv-en" aria-pressed="${S.dir === "sv-en"}">Ruotsi → englanti</button>
+      <button data-action="dir" data-v="en-sv" aria-pressed="${S.dir === "en-sv"}">Englanti → ruotsi</button></div></div></section>`;
+  h += `<div class="dock"><div class="dock-inner"><div class="progress"><span class="label">${sel.length} sanaa valittu</span></div>
+    <div class="btns"><button class="btn" data-action="cstart" id="primary" ${sel.length ? "" : "disabled"}>Aloita harjoitus</button></div></div></div>`;
+  return h;
+}
+function renderCards(map){
+  const C = S.cards;
+  let h = "";
+  if (C.i >= C.list.length){
+    const ok = C.total - C.firstMiss.size, frac = ok / C.total, R = 2 * Math.PI * 50;
+    h += `<section class="card done"><span class="label">Sanat käyty läpi</span>
+      <svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ok} / ${C.total} osattu heti">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="10"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="${frac === 1 ? "var(--good)" : "var(--blue-2)"}" stroke-width="10" stroke-linecap="round"
+          stroke-dasharray="${(R * frac).toFixed(1)} ${R.toFixed(1)}" transform="rotate(-90 60 60)"/>
+        <text x="60" y="68" text-anchor="middle" font-size="26">${ok}/${C.total}</text></svg>
+      <h2>${frac === 1 ? "Kaikki sanat hallussa!" : "Osasit heti " + ok + " sanaa. Harjoittele vielä hankalat."}</h2></section>`;
+    h += `<div class="dock"><div class="dock-inner"><div class="btns">`;
+    if (C.firstMiss.size) h += `<button class="btn" data-action="cstart" data-v="missed" id="primary">Harjoittele hankalat (${C.firstMiss.size})</button>`;
+    h += `<button class="btn ${C.firstMiss.size ? "sec" : ""}" data-action="cstart" ${C.firstMiss.size ? "" : 'id="primary"'}>Uusi kierros</button>
+      <button class="btn sec" data-action="cquit">Sanalistaan</button></div></div></div>`;
+    return h;
+  }
+  const w = C.list[C.i], sent = map.get(w) || "", en = S.trMem[w], st = S.trState[w];
+  const enHTML = en ? esc(en) : st === "loading" ? `<span class="note">Haetaan käännöstä…</span>` : st === "error" ? `<span class="note">Käännös ei onnistunut.</span>` : `<span class="note">…</span>`;
+  const svDir = S.dir === "sv-en";
+  h += `<section class="card flash" aria-live="polite"><span class="label">${svDir ? "Mitä tämä tarkoittaa?" : "Miten tämä sanotaan ruotsiksi?"}</span>`;
+  h += svDir ? `<div class="fw">${esc(w)}</div>` : `<div class="fw en-word">${enHTML}</div>`;
+  if (C.flipped) h += svDir ? `<div class="answer">${enHTML}</div>` : `<div class="answer sv-ans">${esc(w)}</div>`;
+  if (sent && (C.flipped || !svDir)) h += `<p class="ctx">${ctxHTML(sent, w, C.flipped ? "mark" : "blank")}</p>`;
+  if (canSpeak && (svDir || C.flipped)){
+    h += `<div class="mini center"><button data-action="speakw" data-w="${esc(w)}" aria-label="Kuuntele sana">${I.speak}Sana</button>`;
+    if (sent && C.flipped) h += `<button data-action="speakw" data-w="${esc(sent)}" aria-label="Kuuntele lause">${I.speak}Lause</button>`;
+    h += `</div>`;
+  }
+  h += `</section>`;
+  const pct = Math.round(C.i / C.list.length * 100);
+  h += `<div class="dock"><div class="dock-inner"><div class="progress"><span class="label">Sana ${C.i + 1} / ${C.list.length}</span><div class="meter"><i style="width:${pct}%"></i></div></div><div class="btns">
+    <button class="btn sec icon-btn" data-action="cquit" aria-label="Lopeta harjoitus" title="Lopeta">${I.restart}</button>`;
+  h += C.flipped
+    ? `<button class="btn bad" data-action="cgrade" data-v="0">Vielä</button><button class="btn good" data-action="cgrade" data-v="1" id="primary">Osaan</button>`
+    : `<button class="btn" data-action="cflip" id="primary">Näytä vastaus</button>`;
+  h += `</div></div></div>`;
+  return h;
+}
+
 /* ---------- icons ---------- */
 const I = {
   speak: '<svg class="i" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
@@ -421,27 +558,30 @@ function render(){
       <div class="sharebox"><input type="text" id="shareInput" readonly value="${esc(S.share)}"><button class="btn" data-action="copy" id="copyBtn">Kopioi</button></div></div></section>`;
   }
 
+  h += `<div class="toggle big" role="group" aria-label="Harjoitus">
+      <button data-action="tab" data-v="lines" aria-pressed="${S.tab === "lines"}">Repliikit</button>
+      <button data-action="tab" data-v="words" aria-pressed="${S.tab === "words"}">Vaikeat sanat</button></div>`;
   h += `<section class="card" aria-label="Asetukset">`;
   h += `<div class="group"><span class="label">Kuka olet?</span><div class="seg">`;
   for (const sp of speakers) h += `<button class="who-chip" data-action="role" data-v="${esc(sp)}" aria-pressed="${sp === role}">${avatar(speakers, sp)}${esc(sp)}</button>`;
   h += `</div></div>`;
-  h += `<div class="group"><span class="label">Taso</span><div class="levels">
+  if (S.tab === "lines") h += `<div class="group"><span class="label">Taso</span><div class="levels">
       <button class="lvl" data-action="level" data-v="1" aria-pressed="${S.level === 1}"><b>1</b><span>Kaikki näkyy</span><small>Lue ja kuuntele</small></button>
       <button class="lvl" data-action="level" data-v="2" aria-pressed="${S.level === 2}"><b>2</b><span>Vihjeet</span><small>Täydennä omat</small></button>
       <button class="lvl" data-action="level" data-v="3" aria-pressed="${S.level === 3}"><b>3</b><span>Ulkomuistista</span><small>Muista itse</small></button>
     </div></div>`;
   h += `<div class="split">`;
-  if (S.level === 2){
+  if (S.level === 2 && S.tab === "lines"){
     h += `<div class="group"><span class="label">Vihje</span><div class="toggle">
         <button data-action="hint" data-v="initials" aria-pressed="${S.hint === "initials"}">Alkukirjaimet</button>
         <button data-action="hint" data-v="gaps" aria-pressed="${S.hint === "gaps"}">Aukot</button></div></div>`;
   }
-  h += `<div class="group"><span class="label">Tapa</span><div class="toggle">
+  if (S.tab === "lines") h += `<div class="group"><span class="label">Tapa</span><div class="toggle">
       <button data-action="mode" data-v="step" aria-pressed="${S.mode === "step"}">Vuoro kerrallaan</button>
       <button data-action="mode" data-v="all" aria-pressed="${S.mode === "all"}">Koko teksti</button></div></div>`;
   if (canSpeak){
     h += `<div class="group"><span class="label">Ääni</span><div class="seg" style="align-items:center;gap:14px">
-        <label class="chk"><input type="checkbox" id="autoRead" ${S.autoRead ? "checked" : ""}> Lue muiden vuorot</label>
+        <label class="chk"><input type="checkbox" id="autoRead" ${S.autoRead ? "checked" : ""}> ${S.tab === "lines" ? "Lue muiden vuorot" : "Lue sanat ääneen"}</label>
         <select id="rate" aria-label="Puhenopeus"><option value="0.7" ${S.rate === 0.7 ? "selected" : ""}>Hidas</option><option value="0.9" ${S.rate === 0.9 ? "selected" : ""}>Normaali</option></select>
       </div></div>`;
   }
@@ -449,6 +589,13 @@ function render(){
 
   if (!role){
     h += `<section class="card hint-card"><h2>Valitse ensin roolisi</h2><p class="note">Valitse yltä, kenen vuorosanoja harjoittelet. Omat repliikkisi näkyvät oikealla keltaisina. Napauta mitä tahansa repliikkiä, niin näet sen englanniksi.</p></section>`;
+  }
+
+  if (S.tab === "words"){
+    if (role) h += renderWords(script, lines, speakers, role);
+    h += `<footer>Käsikirjoitukset ja asetukset tallentuvat vain tähän selaimeen. Käännökset: MyMemory.</footer>`;
+    app.innerHTML = h;
+    return;
   }
 
   const step = S.mode === "step" && role;
@@ -634,6 +781,37 @@ app.addEventListener("click", e => {
     case "reveal": S.step.revealed = true; render(); break;
     case "grade": S.step.results[S.step.pos] = t.dataset.v === "1"; next(); break;
     case "restart": resetStep(); afterMove(); break;
+    case "tab": S.tab = t.dataset.v === "words" ? "words" : "lines"; LS.set("tab", S.tab); S.cards = null; render(); window.scrollTo(0, 0); break;
+    case "dir": S.dir = t.dataset.v === "en-sv" ? "en-sv" : "sv-en"; LS.set("dir", S.dir); render(); break;
+    case "wtoggle": case "wall": case "wnone": case "wauto": case "wadd": {
+      const { role, map } = cardContext();
+      if (!role) break;
+      let sel = selectedWords(script, role, map);
+      const a = t.dataset.action;
+      if (a === "wtoggle"){ const w = t.dataset.w; sel = sel.includes(w) ? sel.filter(x => x !== w) : [...sel, w]; }
+      else if (a === "wall") sel = [...new Set([...map.keys(), ...sel])];
+      else if (a === "wnone") sel = [];
+      else if (a === "wauto") sel = [...map.keys()].filter(isHard);
+      else {
+        const inp = document.getElementById("wordInput");
+        const w = normWord((inp && inp.value || "").trim().replace(/\s+/g, " ")).slice(0, 40);
+        if (!w) break;
+        if (!sel.includes(w)) sel = [...sel, w];
+      }
+      setSelected(script, role, sel); render();
+      if (a === "wadd"){ const inp = document.getElementById("wordInput"); if (inp) inp.focus(); }
+      break;
+    }
+    case "cstart": startCards(t.dataset.v === "missed"); break;
+    case "cflip": if (S.cards){ S.cards.flipped = true; render(); const w = S.cards.list[S.cards.i]; if (S.dir === "en-sv" && S.autoRead && w) speak(w); } break;
+    case "cgrade": {
+      const C = S.cards; if (!C) break;
+      const w = C.list[C.i];
+      if (t.dataset.v !== "1"){ C.firstMiss.add(w); C.list.push(w); }
+      C.i++; C.flipped = false; afterCard(); break;
+    }
+    case "cquit": S.cards = null; render(); break;
+    case "speakw": speak(t.dataset.w); break;
   }
 });
 app.addEventListener("change", e => {
@@ -641,6 +819,9 @@ app.addEventListener("change", e => {
   if (e.target.id === "rate"){ S.rate = e.target.value === "0.7" ? 0.7 : 0.9; LS.set("rate", S.rate); }
 });
 document.addEventListener("keydown", e => {
+  if (e.target && e.target.id === "wordInput" && e.key === "Enter"){
+    e.preventDefault(); app.querySelector('[data-action="wadd"]')?.click(); return;
+  }
   if (S.view !== "practice" || e.repeat) return;
   if (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(document.activeElement?.tagName || "")) return;
   if (e.key === " " || e.key === "Enter"){
