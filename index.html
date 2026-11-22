@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Repliikkitreeni</title>
+<meta name="description" content="Ruotsin suullisen kokeen harjoittelu: valitse roolisi ja opettele vuorosanasi vaihe vaiheelta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+html,body{margin:0;height:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+[hidden]{display:none!important}
+.sharebox{display:flex;gap:8px;flex-wrap:wrap}
+.sharebox input{flex:1 1 220px;min-width:0}
+</style>
+<style>
+/* Layout: one reading column like a printed script page; speaker names in a left gutter, the learner's lines marked with highlighter, a sticky action bar at the bottom. */
+:root{
+  --bg:#eef1f6; --paper:#ffffff; --ink:#15213a; --muted:#5a6781; --line:#d9dfea;
+  --blue:#1d5ba3; --blue-ink:#ffffff; --blue-soft:#e2ecf8;
+  --mark:#fbe7a1; --mark-ink:#5a4300;
+  --good:#1d7f52; --good-soft:#dff3e8; --bad:#b4442c; --bad-soft:#f9e3dd;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1420; --paper:#161f31; --ink:#e7ecf5; --muted:#98a4bd; --line:#28334b;
+  --blue:#7aaef0; --blue-ink:#0e1420; --blue-soft:#1c2c46;
+  --mark:#4a3d12; --mark-ink:#f6dc8a;
+  --good:#5cc995; --good-soft:#163a2a; --bad:#f08a72; --bad-soft:#45231b;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --paper:#161f31; --ink:#e7ecf5; --muted:#98a4bd; --line:#28334b;
+  --blue:#7aaef0; --blue-ink:#0e1420; --blue-soft:#1c2c46;
+  --mark:#4a3d12; --mark-ink:#f6dc8a;
+  --good:#5cc995; --good-soft:#163a2a; --bad:#f08a72; --bad-soft:#45231b;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 0;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:16px;min-height:100%}
+h1{font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.02em;margin:0;line-height:1.1}
+h1 span{color:var(--blue)}
+.sub{color:var(--muted);margin:4px 0 0;font-size:.95rem}
+h2{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:0}
+.label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tab{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 14px;font-weight:700;font-size:.95rem}
+.tab[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.tab.ghost{border-style:dashed;color:var(--muted);background:transparent}
+.linkbtn{background:none;border:0;color:var(--blue);font-weight:700;padding:6px 4px;text-decoration:underline;text-underline-offset:3px}
+
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:14px}
+.row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center}
+@media (max-width:560px){.row{grid-template-columns:1fr;gap:6px}}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1.5px solid var(--line);background:transparent;border-radius:8px;padding:6px 12px;font-size:.92rem}
+.seg button[aria-pressed="true"]{background:var(--blue-soft);border-color:var(--blue);color:var(--ink);font-weight:700}
+.seg button small{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
+.chk{display:flex;gap:8px;align-items:center;font-size:.92rem}
+select{font:inherit;padding:5px 8px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.note{font-size:.85rem;color:var(--muted)}
+.warn{background:var(--mark);color:var(--mark-ink);border-radius:8px;padding:10px 12px;font-size:.92rem}
+
+/* Script page */
+.script{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:8px 0}
+.ln{display:grid;grid-template-columns:110px 1fr auto;gap:12px;padding:10px 16px;align-items:start;border-left:4px solid transparent}
+@media (max-width:560px){.ln{grid-template-columns:1fr auto;gap:2px 8px}.ln .who{grid-column:1/-1}}
+.ln + .ln{border-top:1px dashed var(--line)}
+.who{font-family:var(--display);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding-top:3px;overflow-wrap:anywhere}
+.ln.own .who{color:var(--mark-ink)}
+.ln.own{background:color-mix(in srgb, var(--mark) 45%, transparent)}
+.ln.current{border-left-color:var(--blue)}
+.ln.future{opacity:.35}
+.say{min-width:0}
+.sv{margin:0;font-size:1.12rem;line-height:1.6;cursor:pointer;overflow-wrap:anywhere}
+.sv:hover{text-decoration:underline dotted var(--muted);text-underline-offset:4px}
+.en{margin:4px 0 0;font-size:.95rem;color:var(--blue);font-style:italic}
+.en.err{color:var(--bad);font-style:normal}
+.dash{letter-spacing:.12em;color:var(--muted)}
+.gap{display:inline-block;border:0;border-bottom:2px solid var(--ink);background:color-mix(in srgb, var(--paper) 50%, transparent);min-width:2.2ch;height:1.3em;vertical-align:-0.2em;padding:0;margin:0 1px;border-radius:3px 3px 0 0}
+.gap:hover{background:var(--blue-soft)}
+.blank{border:2px dashed color-mix(in srgb, var(--mark-ink) 50%, transparent);border-radius:8px;padding:10px 12px;color:var(--mark-ink);font-size:.95rem}
+.tools{display:flex;gap:4px;align-items:center}
+.icon{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;padding:0}
+.icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon.txt{font-size:.72rem;font-weight:700;width:auto;padding:0 8px;letter-spacing:.04em}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 8px;margin-top:4px}
+.badge.ok{background:var(--good-soft);color:var(--good)}
+.badge.no{background:var(--bad-soft);color:var(--bad)}
+
+.bar{position:sticky;bottom:0;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(6px);padding:12px 0 calc(12px + env(safe-area-inset-bottom, 0px));display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line)}
+.progress{flex:1 1 140px;min-width:0}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;background:var(--blue)}
+.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:700;font-size:1rem;background:var(--blue);color:var(--blue-ink)}
+.btn.sec{background:var(--paper);color:var(--ink);border:1.5px solid var(--line)}
+.btn.good{background:var(--good);color:var(--paper)}
+.btn.bad{background:var(--paper);color:var(--bad);border:1.5px solid var(--bad)}
+.btn.danger{background:var(--bad);color:var(--paper)}
+.btn:disabled{opacity:.5;cursor:default}
+.kbd{font-size:.75rem;color:var(--muted)}
+
+.done{padding:20px 16px;text-align:center;display:grid;gap:8px;justify-items:center}
+.score{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+
+/* Editor */
+label.f{display:grid;gap:6px;font-weight:700;font-size:.92rem}
+input[type=text],textarea{font:inherit;width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+textarea{min-height:260px;font-size:.98rem;line-height:1.55;resize:vertical}
+.preview{display:grid;gap:4px;font-size:.92rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--blue-soft);border-radius:999px;padding:2px 10px;font-size:.85rem;font-weight:700}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+footer{color:var(--muted);font-size:.8rem;padding-bottom:16px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ---------- storage (this browser only) ---------- */
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem("rt:" + k); return v == null ? d : JSON.parse(v); }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem("rt:" + k, JSON.stringify(v)); return true; }catch{ return false; } }
+};
+
+/* ---------- example script ---------- */
+const DEMO = {
+  id: "demo", demo: true, title: "Esimerkki: Kahvilassa",
+  text: `Emma: Hej! Vad vill du ha?
+Leo: Hej. Jag tar en kaffe och en kanelbulle, tack.
+Emma: Vill du ha mjölk i kaffet?
+Leo: Ja, lite mjölk. Hur mycket kostar det?
+Emma: Det blir sex euro och femtio cent.
+Leo: Varsågod. Har ni något vegetariskt att äta också?
+Emma: Ja, vi har en smörgås med ost och tomat.
+Leo: Perfekt, då tar jag en sådan också.
+Emma: Vill du äta här eller ta med?
+Leo: Jag äter här. Tack så mycket!`
+};
+const DEMO_TR = [
+  "Hi! What would you like?",
+  "Hi. I'll have a coffee and a cinnamon bun, please.",
+  "Would you like milk in your coffee?",
+  "Yes, a little milk. How much does it cost?",
+  "That will be six euros and fifty cents.",
+  "Here you go. Do you also have something vegetarian to eat?",
+  "Yes, we have a sandwich with cheese and tomato.",
+  "Perfect, then I'll have one of those too.",
+  "Would you like to eat here or take away?",
+  "I'll eat here. Thank you very much!"
+];
+
+/* ---------- state ---------- */
+const S = {
+  scripts: LS.get("scripts", []),
+  sel: LS.get("sel", null),
+  level: LS.get("level", 1),
+  hint: LS.get("hint", "initials"),
+  mode: LS.get("mode", "step"),
+  autoRead: LS.get("autoRead", false),
+  rate: LS.get("rate", 0.9),
+  view: "practice",
+  editId: null, confirmDelete: false,
+  share: null,          // share link shown for current script
+  incoming: null,       // script arriving through a shared link
+  step: { pos: 0, revealed: false, results: {} },
+  openTr: new Set(), wordRev: new Set(), lineRev: new Set(),
+  trMem: Object.assign({}, LS.get("tr", {})), trState: {}
+};
+parse(DEMO.text).forEach((l, i) => { S.trMem[l.text] = DEMO_TR[i]; });
+
+/* ---------- parsing ---------- */
+function parse(text){
+  const out = [];
+  for (const raw of String(text || "").split(/\r?\n/)){
+    const s = raw.trim();
+    if (!s) continue;
+    const m = s.match(/^([^:]{1,40}?)\s*:\s*(.*)$/);
+    if (m && m[1].trim().split(/\s+/).length <= 3 && !/^https?$/i.test(m[1])){
+      out.push({ speaker: m[1].trim(), text: m[2].trim() });
+    } else if (out.length){
+      const last = out[out.length - 1];
+      last.text += (last.text ? " " : "") + s;
+    } else {
+      out.push({ speaker: "?", text: s });
+    }
+  }
+  return out.filter(l => l.text);
+}
+function speakersOf(lines){
+  const seen = [];
+  for (const l of lines) if (!seen.includes(l.speaker)) seen.push(l.speaker);
+  return seen;
+}
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const allScripts = () => S.scripts.length ? S.scripts : [DEMO];
+function current(){ const list = allScripts(); return list.find(s => s.id === S.sel) || list[0]; }
+const roleKey = id => "role:" + id;
+const getRole = script => LS.get(roleKey(script.id), null);
+function saveScripts(){ return LS.set("scripts", S.scripts); }
+function resetStep(){
+  S.step = { pos: 0, revealed: false, results: {} };
+  S.wordRev.clear(); S.lineRev.clear(); S.openTr.clear(); S.share = null;
+}
+const newId = () => "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+/* ---------- share links (script travels inside the link) ---------- */
+function encodeShare(script){
+  const bytes = new TextEncoder().encode(JSON.stringify({ t: script.title, x: script.text }));
+  let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function decodeShare(str){
+  try{
+    const b64 = str.replace(/-/g, "+").replace(/_/g, "/");
+    const bin = atob(b64 + "===".slice((b64.length + 3) % 4));
+    const obj = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
+    if (typeof obj.x !== "string" || !parse(obj.x).length) return null;
+    return { title: String(obj.t || "Jaettu käsikirjoitus").slice(0, 60), text: obj.x };
+  }catch{ return null; }
+}
+function shareUrl(script){ return location.href.split("#")[0] + "#k=" + encodeShare(script); }
+
+/* ---------- speech ---------- */
+let svVoice = null;
+const canSpeak = "speechSynthesis" in window;
+function loadVoices(){
+  try{
+    const vs = speechSynthesis.getVoices();
+    svVoice = vs.find(v => /^sv[-_]?SE/i.test(v.lang)) || vs.find(v => /^sv/i.test(v.lang)) || null;
+  }catch{}
+}
+if (canSpeak){ loadVoices(); try{ speechSynthesis.addEventListener("voiceschanged", loadVoices); }catch{} }
+function speak(text){
+  if (!canSpeak) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "sv-SE"; if (svVoice) u.voice = svVoice; u.rate = S.rate;
+    speechSynthesis.speak(u);
+  }catch{}
+}
+
+/* ---------- translation (MyMemory, cached in this browser) ---------- */
+async function translate(text){
+  if (S.trMem[text] || S.trState[text] === "loading") return;
+  S.trState[text] = "loading"; render();
+  try{
+    const url = "https://api.mymemory.translated.net/get?langpair=sv|en&q=" + encodeURIComponent(text.slice(0, 480));
+    const r = await fetch(url);
+    const j = await r.json();
+    const out = j && j.responseData && j.responseData.translatedText;
+    if (!out || (j.responseStatus && +j.responseStatus !== 200)) throw new Error("bad");
+    const tmp = document.createElement("textarea"); tmp.innerHTML = out;
+    S.trMem[text] = tmp.value;
+    delete S.trState[text];
+    const stored = LS.get("tr", {}); stored[text] = tmp.value; LS.set("tr", stored);
+  }catch{
+    S.trState[text] = "error";
+  }
+  render();
+}
+const gtLink = text => "https://translate.google.com/?sl=sv&tl=en&op=translate&text=" + encodeURIComponent(text);
+
+/* ---------- hints ---------- */
+function tokens(text){
+  return text.split(/(\s+)/).filter(t => t !== "").map(t => {
+    if (/^\s+$/.test(t)) return { sp: true };
+    const m = t.match(/^([^\p{L}\p{N}]*)([\p{L}\p{N}'’\-]*)(.*)$/u) || ["", t, "", ""];
+    return { pre: m[1], w: m[2], post: m[3] };
+  });
+}
+function hintHTML(i, text, type){
+  let wi = 0;
+  const toks = tokens(text);
+  const wordCount = toks.filter(t => !t.sp && t.w).length;
+  return toks.map(tok => {
+    if (tok.sp) return " ";
+    if (!tok.w) return esc(tok.pre + tok.post);
+    const idx = wi++;
+    let mid;
+    if (type === "initials"){
+      mid = esc(tok.w[0]) + '<span class="dash">' + "_".repeat(Math.max(0, tok.w.length - 1)) + "</span>";
+    } else {
+      const hide = wordCount > 1 && idx % 2 === 1;
+      const k = i + ":" + idx;
+      mid = hide && !S.wordRev.has(k)
+        ? `<button class="gap" data-action="word" data-k="${k}" style="width:${tok.w.length + 1}ch" aria-label="Näytä piilotettu sana"></button>`
+        : esc(tok.w);
+    }
+    return esc(tok.pre) + mid + esc(tok.post);
+  }).join("");
+}
+
+const ICON_SPEAK = '<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+
+/* ---------- render ---------- */
+const app = document.getElementById("app");
+
+function render(){
+  if (S.view === "edit") return;
+  const script = current();
+  const lines = parse(script.text);
+  const speakers = speakersOf(lines);
+  let role = getRole(script);
+  if (role && !speakers.includes(role)) role = null;
+
+  let h = `<header><h1>Repliikki<span>treeni</span></h1>
+    <p class="sub">Ruotsin suullisen kokeen harjoittelu: valitse roolisi ja opettele vuorosanasi vaihe vaiheelta.</p></header>`;
+
+  if (S.incoming){
+    const n = parse(S.incoming.text).length;
+    h += `<section class="panel"><h2>Sinulle jaettiin käsikirjoitus</h2>
+      <p style="margin:0"><b>${esc(S.incoming.title)}</b> · ${n} vuoroa</p>
+      <div class="actions"><button class="btn" data-action="import">Lisää omiin</button><button class="btn sec" data-action="skipImport">Ohita</button></div></section>`;
+  }
+
+  h += `<nav class="tabs" aria-label="Käsikirjoitukset">`;
+  for (const s of allScripts()) h += `<button class="tab" data-action="pick" data-id="${esc(s.id)}" aria-pressed="${s.id === script.id}">${esc(s.title || "Nimetön")}</button>`;
+  h += `<button class="tab ghost" data-action="new">+ Lisää käsikirjoitus</button>`;
+  if (!script.demo) h += `<button class="linkbtn" data-action="edit">Muokkaa</button><button class="linkbtn" data-action="share">Jaa kavereille</button>`;
+  h += `</nav>`;
+
+  if (S.share){
+    h += `<section class="panel"><span class="label">Jakolinkki</span>
+      <p class="note" style="margin:0">Lähetä tämä linkki kavereille. Kun he avaavat sen, käsikirjoitus lisätään heidän sovellukseensa.</p>
+      <div class="sharebox"><input type="text" id="shareInput" readonly value="${esc(S.share)}"><button class="btn" data-action="copy" id="copyBtn">Kopioi</button></div></section>`;
+  }
+  if (script.demo) h += `<p class="note" style="margin:0">Tämä on esimerkki. Lisää oma käsikirjoituksesi napista "+ Lisää käsikirjoitus" tai avaa kaverin lähettämä jakolinkki. Käsikirjoitukset tallentuvat tähän selaimeen.</p>`;
+
+  h += `<section class="panel" aria-label="Asetukset">`;
+  h += `<div class="row"><span class="label">Kuka olet?</span><div class="seg">`;
+  for (const sp of speakers) h += `<button data-action="role" data-v="${esc(sp)}" aria-pressed="${sp === role}">${esc(sp)}</button>`;
+  h += `</div></div>`;
+  h += `<div class="row"><span class="label">Taso</span><div class="seg">
+      <button data-action="level" data-v="1" aria-pressed="${S.level === 1}">1 · Kaikki näkyy<small>lue ja kuuntele</small></button>
+      <button data-action="level" data-v="2" aria-pressed="${S.level === 2}">2 · Vihjeet<small>täydennä omat</small></button>
+      <button data-action="level" data-v="3" aria-pressed="${S.level === 3}">3 · Ulkomuistista<small>muista itse</small></button>
+    </div></div>`;
+  if (S.level === 2){
+    h += `<div class="row"><span class="label">Vihje</span><div class="seg">
+        <button data-action="hint" data-v="initials" aria-pressed="${S.hint === "initials"}">Alkukirjaimet</button>
+        <button data-action="hint" data-v="gaps" aria-pressed="${S.hint === "gaps"}">Aukkotehtävä</button>
+      </div></div>`;
+  }
+  h += `<div class="row"><span class="label">Tapa</span><div class="seg">
+      <button data-action="mode" data-v="step" aria-pressed="${S.mode === "step"}">Vuoro kerrallaan</button>
+      <button data-action="mode" data-v="all" aria-pressed="${S.mode === "all"}">Koko teksti</button>
+    </div></div>`;
+  if (canSpeak){
+    h += `<div class="row"><span class="label">Ääni</span><div class="seg" style="align-items:center;gap:14px">
+        <label class="chk"><input type="checkbox" id="autoRead" ${S.autoRead ? "checked" : ""}> Lue muiden vuorosanat ääneen</label>
+        <label class="chk">Nopeus <select id="rate">
+          <option value="0.7" ${S.rate == 0.7 ? "selected" : ""}>Hidas</option>
+          <option value="0.9" ${S.rate == 0.9 ? "selected" : ""}>Normaali</option>
+        </select></label></div></div>`;
+  }
+  h += `<p class="note" style="margin:0">Napauta mitä tahansa ruotsinkielistä repliikkiä, niin näet englanninkielisen käännöksen.</p></section>`;
+
+  if (!role) h += `<div class="panel"><h2>Valitse ensin roolisi</h2><p class="note" style="margin:0">Valitse yltä, kenen vuorosanoja harjoittelet. Omat repliikkisi näkyvät korostettuina.</p></div>`;
+
+  const step = S.mode === "step" && role;
+  const pos = S.step.pos;
+  const finished = step && pos >= lines.length;
+  const upto = step ? Math.min(pos, lines.length - 1) : lines.length - 1;
+  h += `<section class="script" aria-label="Käsikirjoitus">`;
+  lines.forEach((l, i) => {
+    if (i > upto) return;
+    const own = l.speaker === role;
+    const isCur = step && !finished && i === pos;
+    let show = "full";
+    if (own){
+      const lv = S.level === 1 ? "full" : S.level === 2 ? S.hint : "hidden";
+      if (step){ if (isCur && !S.step.revealed) show = lv; }
+      else if (!S.lineRev.has(i)) show = lv;
+    }
+    h += `<div class="ln ${own ? "own" : ""} ${isCur ? "current" : ""}" data-i="${i}"><div class="who">${own ? "Sinä · " : ""}${esc(l.speaker)}</div><div class="say">`;
+    if (show === "hidden") h += `<div class="blank">Sinun vuorosi: sano repliikki ääneen ulkomuistista.</div>`;
+    else if (show === "full") h += `<p class="sv" data-action="tr" data-i="${i}">${esc(l.text)}</p>`;
+    else h += `<p class="sv" data-action="tr" data-i="${i}">${hintHTML(i, l.text, show)}</p>`;
+    if (S.openTr.has(i)){
+      const en = S.trMem[l.text], st = S.trState[l.text];
+      if (en) h += `<p class="en">${esc(en)}</p>`;
+      else if (st === "loading") h += `<p class="en">Käännetään…</p>`;
+      else if (st === "error") h += `<p class="en err">Käännös ei onnistunut. <a href="${esc(gtLink(l.text))}" target="_blank" rel="noopener">Avaa Google Kääntäjässä</a></p>`;
+    }
+    if (step && own && i < pos && S.step.results[i] !== undefined)
+      h += S.step.results[i] ? `<span class="badge ok">Osasin</span>` : `<span class="badge no">Harjoittelen vielä</span>`;
+    h += `</div><div class="tools">`;
+    if (show !== "full") h += `<button class="icon txt" data-action="tr" data-i="${i}" aria-label="Näytä englanninkielinen käännös">EN</button>`;
+    if (show === "full" && canSpeak) h += `<button class="icon" data-action="speak" data-i="${i}" aria-label="Kuuntele ruotsiksi">${ICON_SPEAK}</button>`;
+    if (!step && own && show !== "full") h += `<button class="icon txt" data-action="revealLine" data-i="${i}">Näytä</button>`;
+    h += `</div></div>`;
+  });
+  if (finished){
+    const ownIdx = lines.map((l, i) => l.speaker === role ? i : -1).filter(i => i >= 0);
+    const graded = ownIdx.filter(i => S.step.results[i] !== undefined);
+    const ok = graded.filter(i => S.step.results[i]).length;
+    h += `<div class="done"><span class="label">Käsikirjoitus läpi</span>`;
+    h += graded.length
+      ? `<div class="score">${ok} / ${graded.length}</div><p class="note" style="margin:0">repliikkiä osasit ulkoa${ok === graded.length ? ". Kokeile seuraavaa tasoa!" : "."}</p>`
+      : `<p class="note" style="margin:0">Hyvä! Kun tuntuu tutulta, vaihda tasolle ${Math.min(3, S.level + 1)}.</p>`;
+    h += `</div>`;
+  }
+  h += `</section>`;
+
+  if (step){
+    const total = lines.length;
+    const pct = Math.round(Math.min(pos, total) / Math.max(1, total) * 100);
+    h += `<div class="bar"><div class="progress"><span class="label">Vuoro ${Math.min(pos + 1, total)} / ${total}</span><div class="meter"><i style="width:${pct}%"></i></div></div>`;
+    if (finished) h += `<button class="btn" data-action="restart" id="primary">Aloita alusta</button>`;
+    else {
+      const own = lines[pos].speaker === role;
+      if (!own || S.level === 1) h += `<button class="btn" data-action="next" id="primary">Seuraava</button>`;
+      else if (!S.step.revealed) h += `<button class="btn" data-action="reveal" id="primary">Näytä repliikki</button>`;
+      else h += `<button class="btn bad" data-action="grade" data-v="0">Harjoittelen vielä</button><button class="btn good" data-action="grade" data-v="1" id="primary">Osasin</button>`;
+      if (pos > 0) h += `<button class="btn sec" data-action="restart">Alusta</button>`;
+    }
+    h += `</div>`;
+  }
+  h += `<footer>Käsikirjoitukset, roolit ja käännökset tallentuvat vain tähän selaimeen. Käännökset haetaan MyMemory-käännöspalvelusta.</footer>`;
+  app.innerHTML = h;
+}
+
+/* ---------- editor ---------- */
+function openEditor(id){
+  const s = id ? S.scripts.find(x => x.id === id) : null;
+  S.view = "edit"; S.editId = id || null; S.confirmDelete = false;
+  app.innerHTML = `
+    <header><h1>Repliikki<span>treeni</span></h1></header>
+    <section class="panel">
+      <h2>${s ? "Muokkaa käsikirjoitusta" : "Uusi käsikirjoitus"}</h2>
+      <label class="f">Nimi<input type="text" id="edTitle" maxlength="60" placeholder="esim. Käsikirjoitus 1: Matkalla Tukholmaan" value="${s ? esc(s.title || "") : ""}"></label>
+      <label class="f">Käsikirjoitus ruotsiksi
+        <textarea id="edText" placeholder="Anna: Hej! Hur mår du?&#10;Mikko: Bra, tack. Och du?&#10;Sara: Hej allihopa!">${s ? esc(s.text || "") : ""}</textarea></label>
+      <p class="note" style="margin:0">Jokainen vuoro omalle rivilleen muodossa <b>Nimi: repliikki</b>. Rivi ilman nimeä liitetään edelliseen vuoroon.</p>
+      <div class="preview" id="edPreview"></div>
+      <p class="en err" id="edErr" hidden></p>
+      <div class="actions">
+        <button class="btn" id="edSave">Tallenna</button>
+        <button class="btn sec" id="edCancel">Peruuta</button>
+        ${s ? `<button class="btn bad" id="edDelete">Poista</button>` : ""}
+      </div>
+    </section>`;
+  const t = document.getElementById("edText");
+  const upd = () => {
+    const lines = parse(t.value), sp = speakersOf(lines);
+    const counts = sp.map(n => `<span class="chip">${esc(n)} · ${lines.filter(l => l.speaker === n).length}</span>`).join("");
+    document.getElementById("edPreview").innerHTML = lines.length
+      ? `<span class="label">Tunnistettiin ${lines.length} vuoroa</span><div class="chips">${counts}</div>` +
+        (sp.length < 2 ? `<div class="warn">Löytyi vain yksi puhuja. Tarkista, että rivit ovat muodossa Nimi: repliikki.</div>` : "") +
+        (sp.includes("?") ? `<div class="warn">Ensimmäiseltä riviltä puuttuu puhujan nimi.</div>` : "")
+      : `<span class="note">Liitä käsikirjoitus yllä olevaan kenttään.</span>`;
+  };
+  t.addEventListener("input", upd); upd();
+  document.getElementById("edCancel").onclick = closeEditor;
+  document.getElementById("edSave").onclick = () => {
+    const title = document.getElementById("edTitle").value.trim() || "Nimetön käsikirjoitus";
+    const text = t.value.replace(/\r\n/g, "\n").trim();
+    if (!parse(text).length){ showEdErr("Käsikirjoitus on tyhjä."); return; }
+    if (S.editId){
+      const s2 = S.scripts.find(x => x.id === S.editId);
+      if (s2){ s2.title = title; s2.text = text; }
+    } else {
+      const ns = { id: newId(), title, text, createdAt: Date.now() };
+      S.scripts.push(ns); S.editId = ns.id;
+    }
+    if (!saveScripts()){ showEdErr("Tallentaminen ei onnistunut. Selaimesi saattaa estää tallennuksen (esim. yksityinen ikkuna)."); return; }
+    S.sel = S.editId; LS.set("sel", S.sel);
+    closeEditor();
+  };
+  const del = document.getElementById("edDelete");
+  if (del) del.onclick = () => {
+    if (!S.confirmDelete){ S.confirmDelete = true; del.textContent = "Vahvista poisto"; del.className = "btn danger"; return; }
+    S.scripts = S.scripts.filter(x => x.id !== S.editId); saveScripts();
+    S.sel = null; LS.set("sel", null); closeEditor();
+  };
+  document.getElementById("edTitle").focus();
+}
+function showEdErr(msg){ const e = document.getElementById("edErr"); if (e){ e.textContent = msg; e.hidden = false; } }
+function closeEditor(){ S.view = "practice"; resetStep(); render(); window.scrollTo(0, 0); }
+
+/* ---------- step logic ---------- */
+function afterMove(){
+  const lines = parse(current().text);
+  const role = getRole(current());
+  const cur = lines[S.step.pos];
+  render();
+  const el = app.querySelector(".ln.current") || app.querySelector(".done");
+  if (el) el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  if (cur && cur.speaker !== role && S.autoRead) speak(cur.text);
+}
+function next(){ S.step.pos++; S.step.revealed = false; afterMove(); }
+
+/* ---------- events ---------- */
+app.addEventListener("click", e => {
+  const t = e.target.closest("[data-action]");
+  if (!t || !app.contains(t)) return;
+  const script = current();
+  switch (t.dataset.action){
+    case "pick": S.sel = t.dataset.id; LS.set("sel", S.sel); resetStep(); render(); break;
+    case "new": openEditor(null); break;
+    case "edit": openEditor(script.id); break;
+    case "share": S.share = S.share ? null : shareUrl(script); render(); break;
+    case "copy": {
+      const inp = document.getElementById("shareInput");
+      const done = () => { const b = document.getElementById("copyBtn"); if (b) b.textContent = "Kopioitu"; };
+      if (navigator.clipboard) navigator.clipboard.writeText(S.share).then(done, () => { inp.select(); });
+      else inp.select();
+      break;
+    }
+    case "import": {
+      const ns = { id: newId(), title: S.incoming.title, text: S.incoming.text, createdAt: Date.now() };
+      const dup = S.scripts.find(x => x.text === ns.text);
+      if (dup) S.sel = dup.id; else { S.scripts.push(ns); saveScripts(); S.sel = ns.id; }
+      LS.set("sel", S.sel); S.incoming = null; resetStep(); render(); break;
+    }
+    case "skipImport": S.incoming = null; render(); break;
+    case "role": LS.set(roleKey(script.id), t.dataset.v); resetStep(); afterMove(); break;
+    case "level": S.level = +t.dataset.v; LS.set("level", S.level); resetStep(); render(); break;
+    case "hint": S.hint = t.dataset.v; LS.set("hint", S.hint); S.wordRev.clear(); render(); break;
+    case "mode": S.mode = t.dataset.v; LS.set("mode", S.mode); resetStep(); render(); break;
+    case "tr": {
+      const i = +t.dataset.i, text = parse(script.text)[i].text;
+      if (S.openTr.has(i)) S.openTr.delete(i); else S.openTr.add(i);
+      if (S.openTr.has(i) && !S.trMem[text]){ if (S.trState[text] === "error") delete S.trState[text]; translate(text); }
+      render(); break;
+    }
+    case "speak": speak(parse(script.text)[+t.dataset.i].text); break;
+    case "word": S.wordRev.add(t.dataset.k); render(); break;
+    case "revealLine": S.lineRev.add(+t.dataset.i); render(); break;
+    case "next": next(); break;
+    case "reveal": S.step.revealed = true; render(); break;
+    case "grade": S.step.results[S.step.pos] = t.dataset.v === "1"; next(); break;
+    case "restart": resetStep(); afterMove(); break;
+  }
+});
+app.addEventListener("change", e => {
+  if (e.target.id === "autoRead"){ S.autoRead = e.target.checked; LS.set("autoRead", S.autoRead); }
+  if (e.target.id === "rate"){ S.rate = +e.target.value; LS.set("rate", S.rate); }
+});
+document.addEventListener("keydown", e => {
+  if (S.view !== "practice" || e.repeat) return;
+  if (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(document.activeElement?.tagName || "")) return;
+  if (e.key === " " || e.key === "Enter"){
+    const p = document.getElementById("primary");
+    if (p){ e.preventDefault(); p.click(); }
+  }
+});
+
+/* ---------- boot ---------- */
+const m = location.hash.match(/^#k=([A-Za-z0-9_-]+)$/);
+if (m){
+  S.incoming = decodeShare(m[1]);
+  try{ history.replaceState(null, "", location.pathname + location.search); }catch{}
+}
+render();
+})();
+</script>
+</body>
+</html>
