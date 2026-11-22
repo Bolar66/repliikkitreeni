@@ -3,122 +3,177 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-DKHdAZwMBGuHyUiehVKvhdiLn6D3XsUFBJSZmOxsbAk='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>Repliikkitreeni</title>
 <meta name="description" content="Ruotsin suullisen kokeen harjoittelu: valitse roolisi ja opettele vuorosanasi vaihe vaiheelta.">
+<meta name="theme-color" content="#1e4fa0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231e4fa0'/%3E%3Cpath d='M14 18h36a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H30l-10 8v-8h-6a4 4 0 0 1-4-4V22a4 4 0 0 1 4-4z' fill='%23ffd84d'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
 <style>
-html,body{margin:0;height:100%}
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-[hidden]{display:none!important}
-.sharebox{display:flex;gap:8px;flex-wrap:wrap}
-.sharebox input{flex:1 1 220px;min-width:0}
-</style>
-<style>
-/* Layout: one reading column like a printed script page; speaker names in a left gutter, the learner's lines marked with highlighter, a sticky action bar at the bottom. */
+/* Layout: a single column app. Top: wordmark + script picker. Middle: a settings card. Main: the dialogue as a conversation thread
+   (others on the left, you on the right in highlighter yellow). Bottom: a floating action dock. */
 :root{
-  --bg:#eef1f6; --paper:#ffffff; --ink:#15213a; --muted:#5a6781; --line:#d9dfea;
-  --blue:#1d5ba3; --blue-ink:#ffffff; --blue-soft:#e2ecf8;
-  --mark:#fbe7a1; --mark-ink:#5a4300;
-  --good:#1d7f52; --good-soft:#dff3e8; --bad:#b4442c; --bad-soft:#f9e3dd;
+  --bg:#eef2fa; --bg-2:#dfe7f6; --paper:#ffffff; --ink:#152238; --muted:#5d6a84; --line:#dbe2ef;
+  --blue:#1e4fa0; --blue-2:#2f6bd1; --on-blue:#ffffff; --blue-soft:#e4ecfb;
+  --sun:#ffd84d; --sun-soft:#fff3c4; --sun-ink:#4d3a00; --sun-line:#f0c93a;
+  --good:#16804f; --good-soft:#dcf3e6; --bad:#b8432b; --bad-soft:#fbe4de;
+  --c1:#2f6bd1; --c2:#c2410c; --c3:#0f8a6a; --c4:#8a3ffc; --c5:#be185d; --c6:#6b7280;
+  --shadow:0 1px 2px rgba(21,34,56,.06), 0 6px 20px rgba(21,34,56,.07);
   --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-  --r:10px;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0e1420; --paper:#161f31; --ink:#e7ecf5; --muted:#98a4bd; --line:#28334b;
-  --blue:#7aaef0; --blue-ink:#0e1420; --blue-soft:#1c2c46;
-  --mark:#4a3d12; --mark-ink:#f6dc8a;
-  --good:#5cc995; --good-soft:#163a2a; --bad:#f08a72; --bad-soft:#45231b;
+  --bg:#0d1322; --bg-2:#14213b; --paper:#172238; --ink:#e9eef8; --muted:#9ba8c2; --line:#26334f;
+  --blue:#7fb0ff; --blue-2:#9cc2ff; --on-blue:#0d1322; --blue-soft:#1c2c4c;
+  --sun:#ffd84d; --sun-soft:#3a3218; --sun-ink:#ffe591; --sun-line:#7a6420;
+  --good:#5fd39b; --good-soft:#15392a; --bad:#ff8d74; --bad-soft:#47231b;
+  --c1:#7fb0ff; --c2:#ff9b6a; --c3:#4fd1a9; --c4:#b78cff; --c5:#ff7eb6; --c6:#aab3c5;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
   color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#0e1420; --paper:#161f31; --ink:#e7ecf5; --muted:#98a4bd; --line:#28334b;
-  --blue:#7aaef0; --blue-ink:#0e1420; --blue-soft:#1c2c46;
-  --mark:#4a3d12; --mark-ink:#f6dc8a;
-  --good:#5cc995; --good-soft:#163a2a; --bad:#f08a72; --bad-soft:#45231b;
+  --bg:#0d1322; --bg-2:#14213b; --paper:#172238; --ink:#e9eef8; --muted:#9ba8c2; --line:#26334f;
+  --blue:#7fb0ff; --blue-2:#9cc2ff; --on-blue:#0d1322; --blue-soft:#1c2c4c;
+  --sun:#ffd84d; --sun-soft:#3a3218; --sun-ink:#ffe591; --sun-line:#7a6420;
+  --good:#5fd39b; --good-soft:#15392a; --bad:#ff8d74; --bad-soft:#47231b;
+  --c1:#7fb0ff; --c2:#ff9b6a; --c3:#4fd1a9; --c4:#b78cff; --c5:#ff7eb6; --c6:#aab3c5;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
   color-scheme:dark }
+
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
-.wrap{max-width:760px;margin:0 auto;padding-block:20px 0;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:16px;min-height:100%}
-h1{font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.02em;margin:0;line-height:1.1}
-h1 span{color:var(--blue)}
-.sub{color:var(--muted);margin:4px 0 0;font-size:.95rem}
-h2{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:0}
-.label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+html,body{margin:0;min-height:100%}
+:root{padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
+body{
+  background:
+    radial-gradient(1200px 380px at 50% -120px, var(--bg-2), transparent 70%),
+    var(--bg);
+  color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding-block:22px 0;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:18px}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--blue-2);outline-offset:2px}
+a{color:var(--blue)}
 
-.tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tab{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 14px;font-weight:700;font-size:.95rem}
-.tab[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
-.tab.ghost{border-style:dashed;color:var(--muted);background:transparent}
-.linkbtn{background:none;border:0;color:var(--blue);font-weight:700;padding:6px 4px;text-decoration:underline;text-underline-offset:3px}
+/* Header */
+.top{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:13px;background:var(--blue);display:grid;place-items:center;flex:none;box-shadow:var(--shadow)}
+.logo svg{width:26px;height:26px}
+h1{font-family:var(--display);font-weight:800;font-size:1.65rem;letter-spacing:-.025em;margin:0;line-height:1.05}
+h1 span{color:var(--blue)}
+.sub{color:var(--muted);margin:2px 0 0;font-size:.92rem}
+h2{font-family:var(--display);font-weight:700;font-size:1.15rem;margin:0;letter-spacing:-.01em}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.note{font-size:.88rem;color:var(--muted);margin:0}
 
-.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:14px}
-.row{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center}
-@media (max-width:560px){.row{grid-template-columns:1fr;gap:6px}}
-.seg{display:flex;flex-wrap:wrap;gap:6px}
-.seg button{border:1.5px solid var(--line);background:transparent;border-radius:8px;padding:6px 12px;font-size:.92rem}
-.seg button[aria-pressed="true"]{background:var(--blue-soft);border-color:var(--blue);color:var(--ink);font-weight:700}
-.seg button small{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
-.chk{display:flex;gap:8px;align-items:center;font-size:.92rem}
-select{font:inherit;padding:5px 8px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
-.note{font-size:.85rem;color:var(--muted)}
-.warn{background:var(--mark);color:var(--mark-ink);border-radius:8px;padding:10px 12px;font-size:.92rem}
+/* Script picker */
+.picker{display:flex;flex-direction:column;gap:8px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:thin}
+.tab{flex:none;border:1.5px solid var(--line);background:var(--paper);border-radius:12px;padding:8px 14px;font-weight:700;font-size:.95rem;box-shadow:var(--shadow);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.tab.add{border-style:dashed;box-shadow:none;background:transparent;color:var(--blue)}
+.tools-row{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 12px;font-size:.85rem;font-weight:700;color:var(--ink)}
+.pill svg{width:15px;height:15px}
+.pill:hover{border-color:var(--blue-2)}
 
-/* Script page */
-.script{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:8px 0}
-.ln{display:grid;grid-template-columns:110px 1fr auto;gap:12px;padding:10px 16px;align-items:start;border-left:4px solid transparent}
-@media (max-width:560px){.ln{grid-template-columns:1fr auto;gap:2px 8px}.ln .who{grid-column:1/-1}}
-.ln + .ln{border-top:1px dashed var(--line)}
-.who{font-family:var(--display);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding-top:3px;overflow-wrap:anywhere}
-.ln.own .who{color:var(--mark-ink)}
-.ln.own{background:color-mix(in srgb, var(--mark) 45%, transparent)}
-.ln.current{border-left-color:var(--blue)}
-.ln.future{opacity:.35}
-.say{min-width:0}
-.sv{margin:0;font-size:1.12rem;line-height:1.6;cursor:pointer;overflow-wrap:anywhere}
-.sv:hover{text-decoration:underline dotted var(--muted);text-underline-offset:4px}
-.en{margin:4px 0 0;font-size:.95rem;color:var(--blue);font-style:italic}
+/* Cards */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:16px;box-shadow:var(--shadow)}
+.group{display:grid;gap:8px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.who-chip{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 14px 4px 4px;font-weight:700}
+.who-chip[aria-pressed="true"]{border-color:var(--sun-line);background:var(--sun-soft);color:var(--sun-ink)}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:480px){.levels{grid-template-columns:1fr}}
+.lvl{border:1.5px solid var(--line);background:var(--paper);border-radius:14px;padding:10px 12px;text-align:left;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center}
+.lvl b{grid-row:span 2;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);font-family:var(--display);font-size:1.05rem}
+.lvl span{font-weight:700;font-size:.95rem;line-height:1.2}
+.lvl small{color:var(--muted);font-size:.78rem;line-height:1.2}
+.lvl[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.lvl[aria-pressed="true"] b{background:var(--blue);color:var(--on-blue)}
+.toggle{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.toggle button{border:0;background:transparent;border-radius:9px;padding:6px 12px;font-size:.88rem;font-weight:700;color:var(--muted)}
+.toggle button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:var(--shadow)}
+.split{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end}
+.chk{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.chk input{width:18px;height:18px;accent-color:var(--blue)}
+select{font:inherit;font-size:.9rem;padding:5px 8px;border-radius:9px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.warn{background:var(--sun-soft);color:var(--sun-ink);border-radius:12px;padding:10px 12px;font-size:.9rem}
+
+/* Avatars */
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:.8rem;color:#fff;flex:none;background:var(--c, var(--c6))}
+:root:not([data-theme="light"]) .av{color:#0d1322}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .av{color:#fff} }
+:root[data-theme="light"] .av{color:#fff}
+
+/* Conversation */
+.thread{display:flex;flex-direction:column;gap:14px;padding:4px 0 8px}
+.msg{display:flex;gap:10px;align-items:flex-end;max-width:92%;animation:pop .25s ease-out}
+.msg.own{align-self:flex-end;flex-direction:row-reverse}
+.msg .col{display:flex;flex-direction:column;gap:4px;min-width:0}
+.msg.own .col{align-items:flex-end}
+.name{font-size:.75rem;font-weight:700;color:var(--muted);padding:0 6px;text-transform:uppercase;letter-spacing:.06em}
+.msg.own .name{color:var(--sun-ink)}
+.bubble{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:18px 18px 18px 6px;padding:10px 14px;box-shadow:var(--shadow);min-width:0;max-width:100%}
+.msg.own .bubble{background:var(--sun-soft);border-color:var(--sun-line);border-radius:18px 18px 6px 18px}
+.msg.current .bubble{box-shadow:0 0 0 3px color-mix(in srgb, var(--blue-2) 35%, transparent), var(--shadow)}
+.sv{margin:0;font-size:1.1rem;line-height:1.6;cursor:pointer;overflow-wrap:anywhere}
+.en{margin:8px 0 0;padding-top:8px;border-top:1px dashed var(--line);font-size:.93rem;color:var(--blue);font-style:italic}
+.msg.own .en{border-top-color:var(--sun-line)}
 .en.err{color:var(--bad);font-style:normal}
-.dash{letter-spacing:.12em;color:var(--muted)}
-.gap{display:inline-block;border:0;border-bottom:2px solid var(--ink);background:color-mix(in srgb, var(--paper) 50%, transparent);min-width:2.2ch;height:1.3em;vertical-align:-0.2em;padding:0;margin:0 1px;border-radius:3px 3px 0 0}
-.gap:hover{background:var(--blue-soft)}
-.blank{border:2px dashed color-mix(in srgb, var(--mark-ink) 50%, transparent);border-radius:8px;padding:10px 12px;color:var(--mark-ink);font-size:.95rem}
-.tools{display:flex;gap:4px;align-items:center}
-.icon{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;padding:0}
-.icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.icon.txt{font-size:.72rem;font-weight:700;width:auto;padding:0 8px;letter-spacing:.04em}
-.badge{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 8px;margin-top:4px}
+.dash{letter-spacing:.14em;color:var(--muted)}
+.gap{display:inline-block;border:0;border-bottom:2px solid currentColor;background:color-mix(in srgb, var(--blue-2) 14%, transparent);min-width:2.2ch;height:1.25em;vertical-align:-0.2em;padding:0;margin:0 1px;border-radius:4px 4px 0 0}
+.gap:hover{background:color-mix(in srgb, var(--blue-2) 28%, transparent)}
+.blank{display:flex;align-items:center;gap:10px;color:var(--sun-ink);font-size:.95rem}
+.blank svg{width:22px;height:22px;flex:none}
+.msg.own.hidden .bubble{background:transparent;border:2px dashed var(--sun-line);box-shadow:none}
+.mini{display:flex;gap:6px;padding:0 4px}
+.mini button{border:1px solid var(--line);background:var(--paper);border-radius:999px;height:28px;min-width:28px;padding:0 9px;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:.75rem;font-weight:700;color:var(--muted)}
+.mini button:hover{color:var(--blue);border-color:var(--blue-2)}
+.mini svg{width:14px;height:14px}
+.badge{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 9px}
 .badge.ok{background:var(--good-soft);color:var(--good)}
 .badge.no{background:var(--bad-soft);color:var(--bad)}
+svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@keyframes pop{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-.bar{position:sticky;bottom:0;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(6px);padding:12px 0 calc(12px + env(safe-area-inset-bottom, 0px));display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line)}
-.progress{flex:1 1 140px;min-width:0}
-.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:4px}
-.meter i{display:block;height:100%;background:var(--blue)}
-.btn{border:0;border-radius:10px;padding:11px 18px;font-weight:700;font-size:1rem;background:var(--blue);color:var(--blue-ink)}
+/* Empty / done */
+.hint-card{text-align:center;padding:26px 18px}
+.done{display:grid;justify-items:center;gap:8px;padding:22px 16px;text-align:center}
+.ring{width:120px;height:120px}
+.ring text{font-family:var(--display);font-weight:800;fill:var(--ink)}
+
+/* Dock */
+.dock{position:sticky;bottom:0;margin-top:4px;padding:10px 0 calc(14px + env(safe-area-inset-bottom, 0px));background:linear-gradient(to top, var(--bg) 70%, transparent)}
+.dock-inner{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:10px 10px 10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.progress{flex:1 1 120px;min-width:0}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:5px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg, var(--blue), var(--blue-2));border-radius:3px;transition:width .3s}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 18px;font-weight:700;font-size:1rem;background:var(--blue);color:var(--on-blue)}
+.btn:hover{filter:brightness(1.08)}
 .btn.sec{background:var(--paper);color:var(--ink);border:1.5px solid var(--line)}
 .btn.good{background:var(--good);color:var(--paper)}
-.btn.bad{background:var(--paper);color:var(--bad);border:1.5px solid var(--bad)}
+.btn.bad{background:var(--bad-soft);color:var(--bad)}
 .btn.danger{background:var(--bad);color:var(--paper)}
 .btn:disabled{opacity:.5;cursor:default}
-.kbd{font-size:.75rem;color:var(--muted)}
-
-.done{padding:20px 16px;text-align:center;display:grid;gap:8px;justify-items:center}
-.score{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.icon-btn{width:44px;padding:11px 0;display:grid;place-items:center}
+.icon-btn svg{width:18px;height:18px}
 
 /* Editor */
 label.f{display:grid;gap:6px;font-weight:700;font-size:.92rem}
-input[type=text],textarea{font:inherit;width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+input[type=text],textarea{font:inherit;width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
 textarea{min-height:260px;font-size:.98rem;line-height:1.55;resize:vertical}
-.preview{display:grid;gap:4px;font-size:.92rem}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{background:var(--blue-soft);border-radius:999px;padding:2px 10px;font-size:.85rem;font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--blue-soft);border-radius:999px;padding:3px 10px 3px 3px;font-size:.85rem;font-weight:700}
+.chip .av{width:22px;height:22px;font-size:.65rem}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
-footer{color:var(--muted);font-size:.8rem;padding-bottom:16px}
-@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+.sharebox{display:flex;gap:8px;flex-wrap:wrap}
+.sharebox input{flex:1 1 220px;min-width:0;font-size:.85rem}
+footer{color:var(--muted);font-size:.8rem;text-align:center;padding:8px 0 20px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -133,6 +188,7 @@ const LS = {
   get(k, d){ try{ const v = localStorage.getItem("rt:" + k); return v == null ? d : JSON.parse(v); }catch{ return d; } },
   set(k, v){ try{ localStorage.setItem("rt:" + k, JSON.stringify(v)); return true; }catch{ return false; } }
 };
+const MAX_TEXT = 40000, MAX_TITLE = 60;
 
 /* ---------- example script ---------- */
 const DEMO = {
@@ -161,29 +217,10 @@ const DEMO_TR = [
   "I'll eat here. Thank you very much!"
 ];
 
-/* ---------- state ---------- */
-const S = {
-  scripts: LS.get("scripts", []),
-  sel: LS.get("sel", null),
-  level: LS.get("level", 1),
-  hint: LS.get("hint", "initials"),
-  mode: LS.get("mode", "step"),
-  autoRead: LS.get("autoRead", false),
-  rate: LS.get("rate", 0.9),
-  view: "practice",
-  editId: null, confirmDelete: false,
-  share: null,          // share link shown for current script
-  incoming: null,       // script arriving through a shared link
-  step: { pos: 0, revealed: false, results: {} },
-  openTr: new Set(), wordRev: new Set(), lineRev: new Set(),
-  trMem: Object.assign({}, LS.get("tr", {})), trState: {}
-};
-parse(DEMO.text).forEach((l, i) => { S.trMem[l.text] = DEMO_TR[i]; });
-
 /* ---------- parsing ---------- */
 function parse(text){
   const out = [];
-  for (const raw of String(text || "").split(/\r?\n/)){
+  for (const raw of String(text || "").slice(0, MAX_TEXT).split(/\r?\n/)){
     const s = raw.trim();
     if (!s) continue;
     const m = s.match(/^([^:]{1,40}?)\s*:\s*(.*)$/);
@@ -204,20 +241,47 @@ function speakersOf(lines){
   return seen;
 }
 
+/* ---------- state ---------- */
+function cleanScripts(v){
+  if (!Array.isArray(v)) return [];
+  return v.filter(s => s && typeof s.id === "string" && typeof s.text === "string")
+          .map(s => ({ id: s.id.slice(0, 40), title: String(s.title || "").slice(0, MAX_TITLE), text: s.text.slice(0, MAX_TEXT), createdAt: +s.createdAt || 0 }));
+}
+const S = {
+  scripts: cleanScripts(LS.get("scripts", [])),
+  sel: LS.get("sel", null),
+  level: [1, 2, 3].includes(LS.get("level", 1)) ? LS.get("level", 1) : 1,
+  hint: LS.get("hint", "initials") === "gaps" ? "gaps" : "initials",
+  mode: LS.get("mode", "step") === "all" ? "all" : "step",
+  autoRead: !!LS.get("autoRead", false),
+  rate: LS.get("rate", 0.9) == 0.7 ? 0.7 : 0.9,
+  view: "practice",
+  editId: null, confirmDelete: false,
+  share: null, incoming: null,
+  step: { pos: 0, revealed: false, results: {} },
+  openTr: new Set(), wordRev: new Set(), lineRev: new Set(),
+  trMem: Object.create(null), trState: Object.create(null)
+};
+{ const st = LS.get("tr", {}); if (st && typeof st === "object") for (const k in st) if (typeof st[k] === "string") S.trMem[k] = st[k]; }
+parse(DEMO.text).forEach((l, i) => { S.trMem[l.text] = DEMO_TR[i]; });
+
 /* ---------- helpers ---------- */
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const allScripts = () => S.scripts.length ? S.scripts : [DEMO];
 function current(){ const list = allScripts(); return list.find(s => s.id === S.sel) || list[0]; }
 const roleKey = id => "role:" + id;
 const getRole = script => LS.get(roleKey(script.id), null);
-function saveScripts(){ return LS.set("scripts", S.scripts); }
+const saveScripts = () => LS.set("scripts", S.scripts);
 function resetStep(){
   S.step = { pos: 0, revealed: false, results: {} };
   S.wordRev.clear(); S.lineRev.clear(); S.openTr.clear(); S.share = null;
 }
 const newId = () => "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const initials = n => esc((n.trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2) || "?").toUpperCase());
+const colorVar = (speakers, sp) => `var(--c${(Math.max(0, speakers.indexOf(sp)) % 6) + 1})`;
+const avatar = (speakers, sp) => `<span class="av" style="--c:${colorVar(speakers, sp)}" aria-hidden="true">${initials(sp)}</span>`;
 
-/* ---------- share links (script travels inside the link) ---------- */
+/* ---------- share links (the script travels inside the link's #hash, never sent to a server) ---------- */
 function encodeShare(script){
   const bytes = new TextEncoder().encode(JSON.stringify({ t: script.title, x: script.text }));
   let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
@@ -225,14 +289,15 @@ function encodeShare(script){
 }
 function decodeShare(str){
   try{
+    if (str.length > MAX_TEXT * 2) return null;
     const b64 = str.replace(/-/g, "+").replace(/_/g, "/");
     const bin = atob(b64 + "===".slice((b64.length + 3) % 4));
     const obj = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
-    if (typeof obj.x !== "string" || !parse(obj.x).length) return null;
-    return { title: String(obj.t || "Jaettu käsikirjoitus").slice(0, 60), text: obj.x };
+    if (!obj || typeof obj.x !== "string" || !parse(obj.x).length) return null;
+    return { title: String(obj.t || "Jaettu käsikirjoitus").slice(0, MAX_TITLE), text: obj.x.slice(0, MAX_TEXT) };
   }catch{ return null; }
 }
-function shareUrl(script){ return location.href.split("#")[0] + "#k=" + encodeShare(script); }
+const shareUrl = script => location.href.split("#")[0] + "#k=" + encodeShare(script);
 
 /* ---------- speech ---------- */
 let svVoice = null;
@@ -255,19 +320,22 @@ function speak(text){
 }
 
 /* ---------- translation (MyMemory, cached in this browser) ---------- */
+function decodeEntities(s){
+  return new DOMParser().parseFromString("<!doctype html><body>" + s, "text/html").body.textContent || "";
+}
 async function translate(text){
   if (S.trMem[text] || S.trState[text] === "loading") return;
   S.trState[text] = "loading"; render();
   try{
     const url = "https://api.mymemory.translated.net/get?langpair=sv|en&q=" + encodeURIComponent(text.slice(0, 480));
-    const r = await fetch(url);
+    const r = await fetch(url, { credentials: "omit", referrerPolicy: "no-referrer" });
     const j = await r.json();
     const out = j && j.responseData && j.responseData.translatedText;
-    if (!out || (j.responseStatus && +j.responseStatus !== 200)) throw new Error("bad");
-    const tmp = document.createElement("textarea"); tmp.innerHTML = out;
-    S.trMem[text] = tmp.value;
+    if (typeof out !== "string" || !out || (j.responseStatus && +j.responseStatus !== 200)) throw new Error("bad");
+    const clean = decodeEntities(out).slice(0, 2000);
+    S.trMem[text] = clean;
     delete S.trState[text];
-    const stored = LS.get("tr", {}); stored[text] = tmp.value; LS.set("tr", stored);
+    const stored = LS.get("tr", {}); stored[text] = clean; LS.set("tr", stored);
   }catch{
     S.trState[text] = "error";
   }
@@ -305,10 +373,21 @@ function hintHTML(i, text, type){
   }).join("");
 }
 
-const ICON_SPEAK = '<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+/* ---------- icons ---------- */
+const I = {
+  speak: '<svg class="i" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  mic: '<svg class="i" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>',
+  edit: '<svg class="i" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>',
+  share: '<svg class="i" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  restart: '<svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>',
+  eye: '<svg class="i" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'
+};
+const LOGO = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H15l-6 5v-5H5a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3z" fill="#ffd84d"/><path d="M9 13.5h14M9 17.5h9" stroke="#1e4fa0" stroke-width="2.2" stroke-linecap="round"/></svg>';
 
 /* ---------- render ---------- */
 const app = document.getElementById("app");
+const header = `<header class="top"><div class="logo">${LOGO}</div><div><h1>Repliikki<span>treeni</span></h1>
+  <p class="sub">Opettele ruotsin suullisen kokeen vuorosanasi vaihe vaiheelta.</p></div></header>`;
 
 function render(){
   if (S.view === "edit") return;
@@ -318,65 +397,65 @@ function render(){
   let role = getRole(script);
   if (role && !speakers.includes(role)) role = null;
 
-  let h = `<header><h1>Repliikki<span>treeni</span></h1>
-    <p class="sub">Ruotsin suullisen kokeen harjoittelu: valitse roolisi ja opettele vuorosanasi vaihe vaiheelta.</p></header>`;
+  let h = header;
 
   if (S.incoming){
-    const n = parse(S.incoming.text).length;
-    h += `<section class="panel"><h2>Sinulle jaettiin käsikirjoitus</h2>
-      <p style="margin:0"><b>${esc(S.incoming.title)}</b> · ${n} vuoroa</p>
+    const inc = parse(S.incoming.text);
+    h += `<section class="card"><div class="group"><span class="label">Sinulle jaettiin käsikirjoitus</span>
+      <h2>${esc(S.incoming.title)}</h2>
+      <div class="chips">${speakersOf(inc).map(sp => `<span class="chip">${avatar(speakersOf(inc), sp)}${esc(sp)}</span>`).join("")}</div>
+      <p class="note">${inc.length} vuoroa. Tarkista, että käsikirjoitus on kaverilta, jonka tunnet.</p></div>
       <div class="actions"><button class="btn" data-action="import">Lisää omiin</button><button class="btn sec" data-action="skipImport">Ohita</button></div></section>`;
   }
 
-  h += `<nav class="tabs" aria-label="Käsikirjoitukset">`;
-  for (const s of allScripts()) h += `<button class="tab" data-action="pick" data-id="${esc(s.id)}" aria-pressed="${s.id === script.id}">${esc(s.title || "Nimetön")}</button>`;
-  h += `<button class="tab ghost" data-action="new">+ Lisää käsikirjoitus</button>`;
-  if (!script.demo) h += `<button class="linkbtn" data-action="edit">Muokkaa</button><button class="linkbtn" data-action="share">Jaa kavereille</button>`;
-  h += `</nav>`;
+  h += `<section class="picker"><span class="label">Käsikirjoitus</span><nav class="tabs" aria-label="Käsikirjoitukset">`;
+  for (const s of allScripts()) h += `<button class="tab" data-action="pick" data-id="${esc(s.id)}" aria-pressed="${s.id === script.id}" title="${esc(s.title || "Nimetön")}">${esc(s.title || "Nimetön")}</button>`;
+  h += `<button class="tab add" data-action="new">+ Lisää</button></nav>`;
+  if (!script.demo) h += `<div class="tools-row"><button class="pill" data-action="edit">${I.edit}Muokkaa</button><button class="pill" data-action="share" aria-expanded="${!!S.share}">${I.share}Jaa kavereille</button></div>`;
+  else h += `<p class="note">Tämä on esimerkki. Lisää oma käsikirjoituksesi tai avaa kaverin lähettämä jakolinkki.</p>`;
+  h += `</section>`;
 
   if (S.share){
-    h += `<section class="panel"><span class="label">Jakolinkki</span>
-      <p class="note" style="margin:0">Lähetä tämä linkki kavereille. Kun he avaavat sen, käsikirjoitus lisätään heidän sovellukseensa.</p>
-      <div class="sharebox"><input type="text" id="shareInput" readonly value="${esc(S.share)}"><button class="btn" data-action="copy" id="copyBtn">Kopioi</button></div></section>`;
+    h += `<section class="card"><div class="group"><span class="label">Jakolinkki</span>
+      <p class="note">Lähetä linkki kavereille. Kun he avaavat sen, käsikirjoitus lisätään heidän sovellukseensa.</p>
+      <div class="sharebox"><input type="text" id="shareInput" readonly value="${esc(S.share)}"><button class="btn" data-action="copy" id="copyBtn">Kopioi</button></div></div></section>`;
   }
-  if (script.demo) h += `<p class="note" style="margin:0">Tämä on esimerkki. Lisää oma käsikirjoituksesi napista "+ Lisää käsikirjoitus" tai avaa kaverin lähettämä jakolinkki. Käsikirjoitukset tallentuvat tähän selaimeen.</p>`;
 
-  h += `<section class="panel" aria-label="Asetukset">`;
-  h += `<div class="row"><span class="label">Kuka olet?</span><div class="seg">`;
-  for (const sp of speakers) h += `<button data-action="role" data-v="${esc(sp)}" aria-pressed="${sp === role}">${esc(sp)}</button>`;
+  h += `<section class="card" aria-label="Asetukset">`;
+  h += `<div class="group"><span class="label">Kuka olet?</span><div class="seg">`;
+  for (const sp of speakers) h += `<button class="who-chip" data-action="role" data-v="${esc(sp)}" aria-pressed="${sp === role}">${avatar(speakers, sp)}${esc(sp)}</button>`;
   h += `</div></div>`;
-  h += `<div class="row"><span class="label">Taso</span><div class="seg">
-      <button data-action="level" data-v="1" aria-pressed="${S.level === 1}">1 · Kaikki näkyy<small>lue ja kuuntele</small></button>
-      <button data-action="level" data-v="2" aria-pressed="${S.level === 2}">2 · Vihjeet<small>täydennä omat</small></button>
-      <button data-action="level" data-v="3" aria-pressed="${S.level === 3}">3 · Ulkomuistista<small>muista itse</small></button>
+  h += `<div class="group"><span class="label">Taso</span><div class="levels">
+      <button class="lvl" data-action="level" data-v="1" aria-pressed="${S.level === 1}"><b>1</b><span>Kaikki näkyy</span><small>Lue ja kuuntele</small></button>
+      <button class="lvl" data-action="level" data-v="2" aria-pressed="${S.level === 2}"><b>2</b><span>Vihjeet</span><small>Täydennä omat</small></button>
+      <button class="lvl" data-action="level" data-v="3" aria-pressed="${S.level === 3}"><b>3</b><span>Ulkomuistista</span><small>Muista itse</small></button>
     </div></div>`;
+  h += `<div class="split">`;
   if (S.level === 2){
-    h += `<div class="row"><span class="label">Vihje</span><div class="seg">
+    h += `<div class="group"><span class="label">Vihje</span><div class="toggle">
         <button data-action="hint" data-v="initials" aria-pressed="${S.hint === "initials"}">Alkukirjaimet</button>
-        <button data-action="hint" data-v="gaps" aria-pressed="${S.hint === "gaps"}">Aukkotehtävä</button>
+        <button data-action="hint" data-v="gaps" aria-pressed="${S.hint === "gaps"}">Aukot</button></div></div>`;
+  }
+  h += `<div class="group"><span class="label">Tapa</span><div class="toggle">
+      <button data-action="mode" data-v="step" aria-pressed="${S.mode === "step"}">Vuoro kerrallaan</button>
+      <button data-action="mode" data-v="all" aria-pressed="${S.mode === "all"}">Koko teksti</button></div></div>`;
+  if (canSpeak){
+    h += `<div class="group"><span class="label">Ääni</span><div class="seg" style="align-items:center;gap:14px">
+        <label class="chk"><input type="checkbox" id="autoRead" ${S.autoRead ? "checked" : ""}> Lue muiden vuorot</label>
+        <select id="rate" aria-label="Puhenopeus"><option value="0.7" ${S.rate === 0.7 ? "selected" : ""}>Hidas</option><option value="0.9" ${S.rate === 0.9 ? "selected" : ""}>Normaali</option></select>
       </div></div>`;
   }
-  h += `<div class="row"><span class="label">Tapa</span><div class="seg">
-      <button data-action="mode" data-v="step" aria-pressed="${S.mode === "step"}">Vuoro kerrallaan</button>
-      <button data-action="mode" data-v="all" aria-pressed="${S.mode === "all"}">Koko teksti</button>
-    </div></div>`;
-  if (canSpeak){
-    h += `<div class="row"><span class="label">Ääni</span><div class="seg" style="align-items:center;gap:14px">
-        <label class="chk"><input type="checkbox" id="autoRead" ${S.autoRead ? "checked" : ""}> Lue muiden vuorosanat ääneen</label>
-        <label class="chk">Nopeus <select id="rate">
-          <option value="0.7" ${S.rate == 0.7 ? "selected" : ""}>Hidas</option>
-          <option value="0.9" ${S.rate == 0.9 ? "selected" : ""}>Normaali</option>
-        </select></label></div></div>`;
-  }
-  h += `<p class="note" style="margin:0">Napauta mitä tahansa ruotsinkielistä repliikkiä, niin näet englanninkielisen käännöksen.</p></section>`;
+  h += `</div></section>`;
 
-  if (!role) h += `<div class="panel"><h2>Valitse ensin roolisi</h2><p class="note" style="margin:0">Valitse yltä, kenen vuorosanoja harjoittelet. Omat repliikkisi näkyvät korostettuina.</p></div>`;
+  if (!role){
+    h += `<section class="card hint-card"><h2>Valitse ensin roolisi</h2><p class="note">Valitse yltä, kenen vuorosanoja harjoittelet. Omat repliikkisi näkyvät oikealla keltaisina. Napauta mitä tahansa repliikkiä, niin näet sen englanniksi.</p></section>`;
+  }
 
   const step = S.mode === "step" && role;
   const pos = S.step.pos;
   const finished = step && pos >= lines.length;
   const upto = step ? Math.min(pos, lines.length - 1) : lines.length - 1;
-  h += `<section class="script" aria-label="Käsikirjoitus">`;
+  h += `<section class="thread" aria-label="Käsikirjoitus" aria-live="polite">`;
   lines.forEach((l, i) => {
     if (i > upto) return;
     const own = l.speaker === role;
@@ -387,32 +466,41 @@ function render(){
       if (step){ if (isCur && !S.step.revealed) show = lv; }
       else if (!S.lineRev.has(i)) show = lv;
     }
-    h += `<div class="ln ${own ? "own" : ""} ${isCur ? "current" : ""}" data-i="${i}"><div class="who">${own ? "Sinä · " : ""}${esc(l.speaker)}</div><div class="say">`;
-    if (show === "hidden") h += `<div class="blank">Sinun vuorosi: sano repliikki ääneen ulkomuistista.</div>`;
-    else if (show === "full") h += `<p class="sv" data-action="tr" data-i="${i}">${esc(l.text)}</p>`;
+    h += `<div class="msg ${own ? "own" : ""} ${isCur ? "current" : ""} ${show === "hidden" ? "hidden" : ""}">${avatar(speakers, l.speaker)}<div class="col">`;
+    h += `<span class="name">${own ? "Sinä · " : ""}${esc(l.speaker)}</span><div class="bubble">`;
+    if (show === "hidden") h += `<div class="blank">${I.mic}<span>Sinun vuorosi. Sano repliikki ääneen ulkomuistista.</span></div>`;
+    else if (show === "full") h += `<p class="sv" data-action="tr" data-i="${i}" title="Näytä käännös">${esc(l.text)}</p>`;
     else h += `<p class="sv" data-action="tr" data-i="${i}">${hintHTML(i, l.text, show)}</p>`;
     if (S.openTr.has(i)){
       const en = S.trMem[l.text], st = S.trState[l.text];
       if (en) h += `<p class="en">${esc(en)}</p>`;
       else if (st === "loading") h += `<p class="en">Käännetään…</p>`;
-      else if (st === "error") h += `<p class="en err">Käännös ei onnistunut. <a href="${esc(gtLink(l.text))}" target="_blank" rel="noopener">Avaa Google Kääntäjässä</a></p>`;
+      else if (st === "error") h += `<p class="en err">Käännös ei onnistunut. <a href="${esc(gtLink(l.text))}" target="_blank" rel="noopener noreferrer">Avaa Google Kääntäjässä</a></p>`;
     }
+    h += `</div><div class="mini">`;
     if (step && own && i < pos && S.step.results[i] !== undefined)
       h += S.step.results[i] ? `<span class="badge ok">Osasin</span>` : `<span class="badge no">Harjoittelen vielä</span>`;
-    h += `</div><div class="tools">`;
-    if (show !== "full") h += `<button class="icon txt" data-action="tr" data-i="${i}" aria-label="Näytä englanninkielinen käännös">EN</button>`;
-    if (show === "full" && canSpeak) h += `<button class="icon" data-action="speak" data-i="${i}" aria-label="Kuuntele ruotsiksi">${ICON_SPEAK}</button>`;
-    if (!step && own && show !== "full") h += `<button class="icon txt" data-action="revealLine" data-i="${i}">Näytä</button>`;
-    h += `</div></div>`;
+    if (show !== "full") h += `<button data-action="tr" data-i="${i}" aria-label="Näytä englanninkielinen käännös">EN</button>`;
+    if (show === "full" && canSpeak) h += `<button data-action="speak" data-i="${i}" aria-label="Kuuntele ruotsiksi">${I.speak}</button>`;
+    if (!step && own && show !== "full") h += `<button data-action="revealLine" data-i="${i}">${I.eye}Näytä</button>`;
+    h += `</div></div></div>`;
   });
   if (finished){
     const ownIdx = lines.map((l, i) => l.speaker === role ? i : -1).filter(i => i >= 0);
     const graded = ownIdx.filter(i => S.step.results[i] !== undefined);
     const ok = graded.filter(i => S.step.results[i]).length;
-    h += `<div class="done"><span class="label">Käsikirjoitus läpi</span>`;
-    h += graded.length
-      ? `<div class="score">${ok} / ${graded.length}</div><p class="note" style="margin:0">repliikkiä osasit ulkoa${ok === graded.length ? ". Kokeile seuraavaa tasoa!" : "."}</p>`
-      : `<p class="note" style="margin:0">Hyvä! Kun tuntuu tutulta, vaihda tasolle ${Math.min(3, S.level + 1)}.</p>`;
+    h += `<div class="card done"><span class="label">Käsikirjoitus läpi</span>`;
+    if (graded.length){
+      const frac = ok / graded.length, C = 2 * Math.PI * 50;
+      h += `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ok} / ${graded.length} osattu">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50" fill="none" stroke="${frac === 1 ? "var(--good)" : "var(--blue-2)"}" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="${(C * frac).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 60 60)"/>
+          <text x="60" y="68" text-anchor="middle" font-size="26">${ok}/${graded.length}</text></svg>
+        <h2>${frac === 1 ? "Täydellistä! Kokeile seuraavaa tasoa." : frac >= .6 ? "Hyvin menee! Vielä kierros." : "Harjoitus tekee mestarin. Uudestaan!"}</h2>`;
+    } else {
+      h += `<h2>Hyvä! Luit koko dialogin läpi.</h2><p class="note">Kun tuntuu tutulta, vaihda tasolle ${Math.min(3, S.level + 1)}.</p>`;
+    }
     h += `</div>`;
   }
   h += `</section>`;
@@ -420,18 +508,18 @@ function render(){
   if (step){
     const total = lines.length;
     const pct = Math.round(Math.min(pos, total) / Math.max(1, total) * 100);
-    h += `<div class="bar"><div class="progress"><span class="label">Vuoro ${Math.min(pos + 1, total)} / ${total}</span><div class="meter"><i style="width:${pct}%"></i></div></div>`;
+    h += `<div class="dock"><div class="dock-inner"><div class="progress"><span class="label">Vuoro ${Math.min(pos + 1, total)} / ${total}</span><div class="meter"><i style="width:${pct}%"></i></div></div><div class="btns">`;
+    if (pos > 0 && !finished) h += `<button class="btn sec icon-btn" data-action="restart" aria-label="Aloita alusta" title="Aloita alusta">${I.restart}</button>`;
     if (finished) h += `<button class="btn" data-action="restart" id="primary">Aloita alusta</button>`;
     else {
       const own = lines[pos].speaker === role;
       if (!own || S.level === 1) h += `<button class="btn" data-action="next" id="primary">Seuraava</button>`;
       else if (!S.step.revealed) h += `<button class="btn" data-action="reveal" id="primary">Näytä repliikki</button>`;
       else h += `<button class="btn bad" data-action="grade" data-v="0">Harjoittelen vielä</button><button class="btn good" data-action="grade" data-v="1" id="primary">Osasin</button>`;
-      if (pos > 0) h += `<button class="btn sec" data-action="restart">Alusta</button>`;
     }
-    h += `</div>`;
+    h += `</div></div></div>`;
   }
-  h += `<footer>Käsikirjoitukset, roolit ja käännökset tallentuvat vain tähän selaimeen. Käännökset haetaan MyMemory-käännöspalvelusta.</footer>`;
+  h += `<footer>Käsikirjoitukset ja asetukset tallentuvat vain tähän selaimeen. Käännökset: MyMemory.</footer>`;
   app.innerHTML = h;
 }
 
@@ -439,15 +527,14 @@ function render(){
 function openEditor(id){
   const s = id ? S.scripts.find(x => x.id === id) : null;
   S.view = "edit"; S.editId = id || null; S.confirmDelete = false;
-  app.innerHTML = `
-    <header><h1>Repliikki<span>treeni</span></h1></header>
-    <section class="panel">
+  app.innerHTML = header + `
+    <section class="card">
       <h2>${s ? "Muokkaa käsikirjoitusta" : "Uusi käsikirjoitus"}</h2>
-      <label class="f">Nimi<input type="text" id="edTitle" maxlength="60" placeholder="esim. Käsikirjoitus 1: Matkalla Tukholmaan" value="${s ? esc(s.title || "") : ""}"></label>
+      <label class="f">Nimi<input type="text" id="edTitle" maxlength="${MAX_TITLE}" placeholder="esim. Käsikirjoitus 1: Matkalla Tukholmaan" value="${s ? esc(s.title || "") : ""}"></label>
       <label class="f">Käsikirjoitus ruotsiksi
-        <textarea id="edText" placeholder="Anna: Hej! Hur mår du?&#10;Mikko: Bra, tack. Och du?&#10;Sara: Hej allihopa!">${s ? esc(s.text || "") : ""}</textarea></label>
-      <p class="note" style="margin:0">Jokainen vuoro omalle rivilleen muodossa <b>Nimi: repliikki</b>. Rivi ilman nimeä liitetään edelliseen vuoroon.</p>
-      <div class="preview" id="edPreview"></div>
+        <textarea id="edText" maxlength="${MAX_TEXT}" placeholder="Anna: Hej! Hur mår du?&#10;Mikko: Bra, tack. Och du?&#10;Sara: Hej allihopa!">${s ? esc(s.text || "") : ""}</textarea></label>
+      <p class="note">Jokainen vuoro omalle rivilleen muodossa <b>Nimi: repliikki</b>. Rivi ilman nimeä liitetään edelliseen vuoroon.</p>
+      <div class="group" id="edPreview"></div>
       <p class="en err" id="edErr" hidden></p>
       <div class="actions">
         <button class="btn" id="edSave">Tallenna</button>
@@ -458,7 +545,7 @@ function openEditor(id){
   const t = document.getElementById("edText");
   const upd = () => {
     const lines = parse(t.value), sp = speakersOf(lines);
-    const counts = sp.map(n => `<span class="chip">${esc(n)} · ${lines.filter(l => l.speaker === n).length}</span>`).join("");
+    const counts = sp.map(n => `<span class="chip">${avatar(sp, n)}${esc(n)} · ${lines.filter(l => l.speaker === n).length}</span>`).join("");
     document.getElementById("edPreview").innerHTML = lines.length
       ? `<span class="label">Tunnistettiin ${lines.length} vuoroa</span><div class="chips">${counts}</div>` +
         (sp.length < 2 ? `<div class="warn">Löytyi vain yksi puhuja. Tarkista, että rivit ovat muodossa Nimi: repliikki.</div>` : "") +
@@ -468,8 +555,8 @@ function openEditor(id){
   t.addEventListener("input", upd); upd();
   document.getElementById("edCancel").onclick = closeEditor;
   document.getElementById("edSave").onclick = () => {
-    const title = document.getElementById("edTitle").value.trim() || "Nimetön käsikirjoitus";
-    const text = t.value.replace(/\r\n/g, "\n").trim();
+    const title = document.getElementById("edTitle").value.trim().slice(0, MAX_TITLE) || "Nimetön käsikirjoitus";
+    const text = t.value.replace(/\r\n/g, "\n").trim().slice(0, MAX_TEXT);
     if (!parse(text).length){ showEdErr("Käsikirjoitus on tyhjä."); return; }
     if (S.editId){
       const s2 = S.scripts.find(x => x.id === S.editId);
@@ -499,7 +586,7 @@ function afterMove(){
   const role = getRole(current());
   const cur = lines[S.step.pos];
   render();
-  const el = app.querySelector(".ln.current") || app.querySelector(".done");
+  const el = app.querySelector(".msg.current") || app.querySelector(".done");
   if (el) el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   if (cur && cur.speaker !== role && S.autoRead) speak(cur.text);
 }
@@ -517,8 +604,8 @@ app.addEventListener("click", e => {
     case "share": S.share = S.share ? null : shareUrl(script); render(); break;
     case "copy": {
       const inp = document.getElementById("shareInput");
-      const done = () => { const b = document.getElementById("copyBtn"); if (b) b.textContent = "Kopioitu"; };
-      if (navigator.clipboard) navigator.clipboard.writeText(S.share).then(done, () => { inp.select(); });
+      const done = () => { const b = document.getElementById("copyBtn"); if (b) b.textContent = "Kopioitu ✓"; };
+      if (navigator.clipboard) navigator.clipboard.writeText(S.share).then(done, () => inp.select());
       else inp.select();
       break;
     }
@@ -534,12 +621,13 @@ app.addEventListener("click", e => {
     case "hint": S.hint = t.dataset.v; LS.set("hint", S.hint); S.wordRev.clear(); render(); break;
     case "mode": S.mode = t.dataset.v; LS.set("mode", S.mode); resetStep(); render(); break;
     case "tr": {
-      const i = +t.dataset.i, text = parse(script.text)[i].text;
+      const i = +t.dataset.i, line = parse(script.text)[i];
+      if (!line) break;
       if (S.openTr.has(i)) S.openTr.delete(i); else S.openTr.add(i);
-      if (S.openTr.has(i) && !S.trMem[text]){ if (S.trState[text] === "error") delete S.trState[text]; translate(text); }
+      if (S.openTr.has(i) && !S.trMem[line.text]){ if (S.trState[line.text] === "error") delete S.trState[line.text]; translate(line.text); }
       render(); break;
     }
-    case "speak": speak(parse(script.text)[+t.dataset.i].text); break;
+    case "speak": { const line = parse(script.text)[+t.dataset.i]; if (line) speak(line.text); break; }
     case "word": S.wordRev.add(t.dataset.k); render(); break;
     case "revealLine": S.lineRev.add(+t.dataset.i); render(); break;
     case "next": next(); break;
@@ -550,7 +638,7 @@ app.addEventListener("click", e => {
 });
 app.addEventListener("change", e => {
   if (e.target.id === "autoRead"){ S.autoRead = e.target.checked; LS.set("autoRead", S.autoRead); }
-  if (e.target.id === "rate"){ S.rate = +e.target.value; LS.set("rate", S.rate); }
+  if (e.target.id === "rate"){ S.rate = e.target.value === "0.7" ? 0.7 : 0.9; LS.set("rate", S.rate); }
 });
 document.addEventListener("keydown", e => {
   if (S.view !== "practice" || e.repeat) return;
