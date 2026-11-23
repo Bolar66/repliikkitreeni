@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-zh/7mP3Ec8kySGmYJ5vPCmz46ZpGQ2q2Z5YVsiln3zo='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-y+Yf+Qbt1Kenp3qWMFdNw8aJXMPBdrSIERAGcbl+OKU='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Repliikkitreeni</title>
 <meta name="description" content="Ruotsin suullisen kokeen harjoittelu: valitse roolisi ja opettele vuorosanasi vaihe vaiheelta.">
@@ -19,7 +19,7 @@
   --bg:#eef2fa; --bg-2:#dfe7f6; --paper:#ffffff; --ink:#152238; --muted:#5d6a84; --line:#dbe2ef;
   --blue:#1e4fa0; --blue-2:#2f6bd1; --on-blue:#ffffff; --blue-soft:#e4ecfb;
   --sun:#ffd84d; --sun-soft:#fff3c4; --sun-ink:#4d3a00; --sun-line:#f0c93a;
-  --good:#16804f; --good-soft:#dcf3e6; --bad:#b8432b; --bad-soft:#fbe4de;
+  --good:#16804f; --good-soft:#dcf3e6; --bad:#b8432b; --bad-soft:#fbe4de; --warn:#8a5a00; --warn-soft:#ffefc2;
   --c1:#2f6bd1; --c2:#c2410c; --c3:#0f8a6a; --c4:#8a3ffc; --c5:#be185d; --c6:#6b7280;
   --shadow:0 1px 2px rgba(21,34,56,.06), 0 6px 20px rgba(21,34,56,.07);
   --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
@@ -30,7 +30,7 @@
   --bg:#0d1322; --bg-2:#14213b; --paper:#172238; --ink:#e9eef8; --muted:#9ba8c2; --line:#26334f;
   --blue:#7fb0ff; --blue-2:#9cc2ff; --on-blue:#0d1322; --blue-soft:#1c2c4c;
   --sun:#ffd84d; --sun-soft:#3a3218; --sun-ink:#ffe591; --sun-line:#7a6420;
-  --good:#5fd39b; --good-soft:#15392a; --bad:#ff8d74; --bad-soft:#47231b;
+  --good:#5fd39b; --good-soft:#15392a; --bad:#ff8d74; --bad-soft:#47231b; --warn:#f5c451; --warn-soft:#3e3113;
   --c1:#7fb0ff; --c2:#ff9b6a; --c3:#4fd1a9; --c4:#b78cff; --c5:#ff7eb6; --c6:#aab3c5;
   --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
   color-scheme:dark }}
@@ -38,7 +38,7 @@
   --bg:#0d1322; --bg-2:#14213b; --paper:#172238; --ink:#e9eef8; --muted:#9ba8c2; --line:#26334f;
   --blue:#7fb0ff; --blue-2:#9cc2ff; --on-blue:#0d1322; --blue-soft:#1c2c4c;
   --sun:#ffd84d; --sun-soft:#3a3218; --sun-ink:#ffe591; --sun-line:#7a6420;
-  --good:#5fd39b; --good-soft:#15392a; --bad:#ff8d74; --bad-soft:#47231b;
+  --good:#5fd39b; --good-soft:#15392a; --bad:#ff8d74; --bad-soft:#47231b; --warn:#f5c451; --warn-soft:#3e3113;
   --c1:#7fb0ff; --c2:#ff9b6a; --c3:#4fd1a9; --c4:#b78cff; --c5:#ff7eb6; --c6:#aab3c5;
   --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
   color-scheme:dark }
@@ -188,6 +188,29 @@ textarea{min-height:260px;font-size:.98rem;line-height:1.55;resize:vertical}
 .blankw{display:inline-block;min-width:4ch;border-bottom:2px solid currentColor}
 .mini.center{justify-content:center}
 
+/* Typed answers */
+.msg.typing{max-width:100%;width:100%}
+.msg.typing .col{flex:1}
+.msg.typing .bubble{width:100%}
+.sv.typing{cursor:default;line-height:2.3}
+.fill{font:inherit;font-size:1rem;color:var(--ink);border:0;border-bottom:2px solid var(--blue-2);border-radius:6px 6px 0 0;
+  background:color-mix(in srgb, var(--blue-2) 10%, transparent);padding:2px 4px;margin:0 1px;min-width:3ch;max-width:100%;vertical-align:baseline}
+.fill:focus{outline:none;background:color-mix(in srgb, var(--blue-2) 22%, transparent)}
+.fill::placeholder{color:var(--muted);opacity:.8}
+.fullin{display:block;width:100%;margin-top:8px;min-height:72px;font:inherit;font-size:1.05rem;line-height:1.5;color:var(--ink);
+  background:var(--paper);border:1.5px solid var(--sun-line);border-radius:12px;padding:8px 10px;resize:vertical}
+.fullin:focus{outline:3px solid color-mix(in srgb, var(--blue-2) 40%, transparent);outline-offset:1px}
+.verdict{font-family:var(--display);font-weight:800;font-size:1rem;margin-bottom:4px}
+.v-ok{color:var(--good)} .v-almost{color:var(--warn)} .v-wrong{color:var(--bad)}
+.w-ok{color:var(--good);font-weight:700}
+.w-almost{background:var(--warn-soft);color:var(--warn);border-radius:4px;padding:0 2px;font-weight:700}
+.w-wrong{background:var(--bad-soft);color:var(--bad);border-radius:4px;padding:0 2px;font-weight:700}
+.yours{margin:6px 0 0;padding-top:6px;border-top:1px dashed var(--sun-line);font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
+.badge.mid{background:var(--warn-soft);color:var(--warn)}
+.ctoggles{display:flex;flex-wrap:wrap;gap:8px}
+.ctoggles .toggle button{padding:7px 10px;font-size:.85rem}
+.actions.center{justify-content:center}
+
 /* Compact settings + touch sizing */
 .card.compact{padding:12px;gap:10px}
 .crow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -303,12 +326,15 @@ const S = {
   rate: LS.get("rate", 0.9) == 0.7 ? 0.7 : 0.9,
   tab: LS.get("tab", "lines") === "words" ? "words" : "lines",
   settingsOpen: false,
+  lang: LS.get("lang", "sv") === "en" ? "en" : "sv",
+  answer: LS.get("answer", "say") === "type" ? "type" : "say",
+  bulkRunning: false,
   dir: LS.get("dir", "sv-en") === "en-sv" ? "en-sv" : "sv-en",
   cards: null,
   view: "practice",
   editId: null, confirmDelete: false,
   share: null, incoming: null,
-  step: { pos: 0, revealed: false, results: {} },
+  step: { pos: 0, revealed: false, results: {}, typed: {}, check: null },
   openTr: new Set(), wordRev: new Set(), lineRev: new Set(),
   trMem: Object.create(null), trState: Object.create(null)
 };
@@ -323,7 +349,7 @@ const roleKey = id => "role:" + id;
 const getRole = script => LS.get(roleKey(script.id), null);
 const saveScripts = () => LS.set("scripts", S.scripts);
 function resetStep(){
-  S.step = { pos: 0, revealed: false, results: {} };
+  S.step = { pos: 0, revealed: false, results: {}, typed: {}, check: null };
   S.wordRev.clear(); S.lineRev.clear(); S.openTr.clear(); S.share = null; S.cards = null;
 }
 const newId = () => "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -350,23 +376,38 @@ function decodeShare(str){
 const shareUrl = script => location.href.split("#")[0] + "#k=" + encodeShare(script);
 
 /* ---------- speech ---------- */
-let svVoice = null;
+let svVoice = null, enVoice = null;
 const canSpeak = "speechSynthesis" in window;
 function loadVoices(){
   try{
     const vs = speechSynthesis.getVoices();
     svVoice = vs.find(v => /^sv[-_]?SE/i.test(v.lang)) || vs.find(v => /^sv/i.test(v.lang)) || null;
+    enVoice = vs.find(v => /^en[-_]?GB/i.test(v.lang)) || vs.find(v => /^en[-_]?US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
   }catch{}
 }
 if (canSpeak){ loadVoices(); try{ speechSynthesis.addEventListener("voiceschanged", loadVoices); }catch{} }
-function speak(text){
-  if (!canSpeak) return;
+function speak(text, lang = "sv"){
+  if (!canSpeak || !text) return;
   try{
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "sv-SE"; if (svVoice) u.voice = svVoice; u.rate = S.rate;
+    const en = lang === "en";
+    u.lang = en ? "en-GB" : "sv-SE";
+    const v = en ? enVoice : svVoice; if (v) u.voice = v;
+    u.rate = S.rate;
     speechSynthesis.speak(u);
   }catch{}
+}
+/* the line in the practice language (English comes from the translation cache) */
+const textOf = l => S.lang === "en" ? (S.trMem[l.text] || null) : l.text;
+async function bulkTranslate(){
+  if (S.bulkRunning) return;
+  const todo = parse(current().text).filter(l => !S.trMem[l.text] && S.trState[l.text] !== "error");
+  if (!todo.length) return;
+  S.bulkRunning = true;
+  for (const l of todo){ if (!S.trMem[l.text]) await translate(l.text); }
+  S.bulkRunning = false;
+  render();
 }
 
 /* ---------- translation (MyMemory, cached in this browser) ---------- */
@@ -413,7 +454,7 @@ function hintHTML(i, text, type){
     if (type === "initials"){
       mid = esc(tok.w[0]) + '<span class="dash">' + "_".repeat(Math.max(0, tok.w.length - 1)) + "</span>";
     } else {
-      const hide = wordCount > 1 && idx % 2 === 1;
+      const hide = wordCount === 1 || idx % 2 === 1;
       const k = i + ":" + idx;
       mid = hide && !S.wordRev.has(k)
         ? `<button class="gap" data-action="word" data-k="${k}" style="width:${tok.w.length + 1}ch" aria-label="Näytä piilotettu sana"></button>`
@@ -421,6 +462,92 @@ function hintHTML(i, text, type){
     }
     return esc(tok.pre) + mid + esc(tok.post);
   }).join("");
+}
+
+/* ---------- typed answers ---------- */
+const wordList = text => tokens(text).filter(t => !t.sp && t.w).map(t => t.w);
+function hiddenIdx(text, type){
+  const n = wordList(text).length, all = [...Array(n).keys()];
+  if (S.level === 3 || type === "initials" || n <= 1) return all;
+  return all.filter(k => k % 2 === 1);
+}
+const normT = s => String(s).toLowerCase().normalize("NFC").replace(/[’`´]/g, "'")
+  .replace(/[^\p{L}\p{N}' ]+/gu, " ").replace(/\s+/g, " ").trim();
+const loose = s => s.normalize("NFD").replace(/\p{M}/gu, "");
+function lev(a, b){
+  if (a === b) return 0;
+  let prev = Array.from({ length: b.length + 1 }, (_, k) => k);
+  for (let x = 1; x <= a.length; x++){
+    const cur = [x];
+    for (let y = 1; y <= b.length; y++)
+      cur[y] = Math.min(prev[y] + 1, cur[y - 1] + 1, prev[y - 1] + (a[x - 1] === b[y - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+function gradeWord(exp, got){
+  const e = normT(exp), g = normT(got);
+  if (!g) return "wrong";
+  if (e === g) return "ok";
+  if (loose(e) === loose(g)) return "almost";            // only å/ä/ö dots missing
+  return lev(loose(e), loose(g)) <= (e.length <= 4 ? 1 : 2) ? "almost" : "wrong";
+}
+function checkLine(i, text){
+  const words = wordList(text), statuses = {};
+  const tally = () => {
+    const v = Object.values(statuses);
+    return { n: v.length, wrong: v.filter(x => x === "wrong").length, almost: v.filter(x => x === "almost").length };
+  };
+  if (S.level === 2){
+    for (const k of hiddenIdx(text, S.hint)) statuses[k] = gradeWord(words[k], S.step.typed[`in-${i}-${k}`] || "");
+    const t = tally();
+    const result = !t.wrong && !t.almost ? "ok" : (t.n - t.wrong) / Math.max(1, t.n) >= 0.75 ? "almost" : "wrong";
+    return { i, result, statuses };
+  }
+  const typed = (S.step.typed[`in-${i}-full`] || "").trim();
+  const T = normT(typed).split(" ").filter(Boolean);
+  let j = 0;
+  words.forEach((w, k) => {
+    let found = null;
+    for (const want of ["ok", "almost"]){
+      for (let m = j; m < Math.min(T.length, j + 4); m++) if (gradeWord(w, T[m]) === want){ found = [want, m]; break; }
+      if (found) break;
+    }
+    if (found){ statuses[k] = found[0]; j = found[1] + 1; } else statuses[k] = "wrong";
+  });
+  const t = tally(), extra = Math.max(0, T.length - words.length);
+  const result = !t.wrong && !t.almost && !extra ? "ok"
+    : (t.n - t.wrong) / Math.max(1, t.n) >= 0.8 && extra <= 2 ? "almost" : "wrong";
+  return { i, result, statuses, typedText: typed };
+}
+function typeHTML(i, text, type){
+  let wi = 0;
+  const hid = new Set(hiddenIdx(text, type));
+  return tokens(text).map(tok => {
+    if (tok.sp) return " ";
+    if (!tok.w) return esc(tok.pre + tok.post);
+    const k = wi++;
+    if (!hid.has(k)) return esc(tok.pre + tok.w + tok.post);
+    const id = `in-${i}-${k}`;
+    return esc(tok.pre) + `<input class="fill" id="${id}" value="${esc(S.step.typed[id] || "")}" placeholder="${type === "initials" ? esc(tok.w[0]) : ""}"
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next"
+      style="width:${Math.max(3, tok.w.length + 1.5)}ch" aria-label="Sana ${k + 1}">` + esc(tok.post);
+  }).join("");
+}
+function markedHTML(text, statuses){
+  let wi = 0;
+  return tokens(text).map(tok => {
+    if (tok.sp) return " ";
+    if (!tok.w) return esc(tok.pre + tok.post);
+    const st = statuses[wi++];
+    return esc(tok.pre) + (st ? `<span class="w-${st}">${esc(tok.w)}</span>` : esc(tok.w)) + esc(tok.post);
+  }).join("");
+}
+const VERDICT = { ok: "✓ Oikein!", almost: "≈ Melkein oikein", wrong: "✗ Väärin" };
+const RESULT_BADGE = { ok: ["ok", "Oikein"], almost: ["mid", "Melkein"], wrong: ["no", "Harjoittele vielä"] };
+function focusTyping(){
+  const el = app.querySelector(".msg.current .fill, .msg.current .fullin");
+  if (el) el.focus({ preventScroll: true });
 }
 
 /* ---------- hard words ---------- */
@@ -602,6 +729,13 @@ function render(){
     if (S.tab === "lines"){
       h += `<div class="toggle big" role="group" aria-label="Taso">${[1, 2, 3].map(n =>
         `<button data-action="level" data-v="${n}" aria-pressed="${S.level === n}">${n} · ${lvNames[n]}</button>`).join("")}</div>`;
+      h += `<div class="ctoggles"><div class="toggle" role="group" aria-label="Kieli">
+          <button data-action="lang" data-v="sv" aria-pressed="${S.lang === "sv"}">Ruotsi</button>
+          <button data-action="lang" data-v="en" aria-pressed="${S.lang === "en"}">Englanti</button></div>`;
+      if (S.level > 1 && S.mode === "step") h += `<div class="toggle" role="group" aria-label="Vastaus">
+          <button data-action="answer" data-v="say" aria-pressed="${S.answer === "say"}">Ääneen</button>
+          <button data-action="answer" data-v="type" aria-pressed="${S.answer === "type"}">Kirjoita</button></div>`;
+      h += `</div>`;
     }
     h += `</section>`;
   } else {
@@ -615,6 +749,14 @@ function render(){
       <button class="lvl" data-action="level" data-v="3" aria-pressed="${S.level === 3}"><b>3</b><span>Ulkomuistista</span><small>Muista itse</small></button>
     </div></div>`;
   h += `<div class="split">`;
+  if (S.tab === "lines"){
+    h += `<div class="group"><span class="label">Harjoittelukieli</span><div class="toggle">
+        <button data-action="lang" data-v="sv" aria-pressed="${S.lang === "sv"}">Ruotsi</button>
+        <button data-action="lang" data-v="en" aria-pressed="${S.lang === "en"}">Englanti</button></div></div>`;
+    if (S.level > 1) h += `<div class="group"><span class="label">Vastaus</span><div class="toggle">
+        <button data-action="answer" data-v="say" aria-pressed="${S.answer === "say"}">Sano ääneen</button>
+        <button data-action="answer" data-v="type" aria-pressed="${S.answer === "type"}">Kirjoita</button></div></div>`;
+  }
   if (S.level === 2 && S.tab === "lines"){
     h += `<div class="group"><span class="label">Vihje</span><div class="toggle">
         <button data-action="hint" data-v="initials" aria-pressed="${S.hint === "initials"}">Alkukirjaimet</button>
@@ -640,58 +782,104 @@ function render(){
 
   if (S.tab === "words"){
     if (role) h += renderWords(script, lines, speakers, role);
-    h += `<footer>Käsikirjoitukset ja asetukset tallentuvat vain tähän selaimeen. Käännökset: MyMemory.</footer>`;
-    app.innerHTML = h;
+    setApp(h + FOOTER);
     return;
   }
 
   const step = S.mode === "step" && role;
+  const typing = step && S.answer === "type" && S.level > 1;
   const pos = S.step.pos;
   const finished = step && pos >= lines.length;
   const upto = step ? Math.min(pos, lines.length - 1) : lines.length - 1;
+
+  // English practice needs every line translated first
+  if (S.lang === "en"){
+    const missing = lines.filter(l => !S.trMem[l.text]);
+    if (missing.length){
+      const failed = missing.filter(l => S.trState[l.text] === "error").length;
+      const done = lines.length - missing.length;
+      h += `<section class="card hint-card">`;
+      if (failed && !S.bulkRunning){
+        h += `<h2>Kaikkia repliikkejä ei saatu käännettyä</h2>
+          <p class="note">${failed} repliikkiä jäi kääntämättä. Tarkista nettiyhteys ja yritä uudelleen, tai harjoittele ruotsiksi.</p>
+          <div class="actions center"><button class="btn" data-action="retryTr">Yritä uudelleen</button><button class="btn sec" data-action="lang" data-v="sv">Harjoittele ruotsiksi</button></div>`;
+      } else {
+        h += `<h2>Käännetään dialogia englanniksi…</h2>
+          <p class="note">${done} / ${lines.length} repliikkiä valmiina. Käännös tehdään vain kerran ja tallentuu selaimeesi.</p>
+          <div class="meter" style="max-width:240px;margin:6px auto 0"><i style="width:${Math.round(done / lines.length * 100)}%"></i></div>`;
+        if (!S.bulkRunning) setTimeout(bulkTranslate, 0);
+      }
+      h += `</section>`;
+      setApp(h + FOOTER);
+      return;
+    }
+  }
+
   h += `<section class="thread" aria-label="Käsikirjoitus" aria-live="polite">`;
   lines.forEach((l, i) => {
     if (i > upto) return;
     const own = l.speaker === role;
     const isCur = step && !finished && i === pos;
+    const txt = textOf(l);
     let show = "full";
     if (own){
       const lv = S.level === 1 ? "full" : S.level === 2 ? S.hint : "hidden";
-      if (step){ if (isCur && !S.step.revealed) show = lv; }
+      if (step){ if (isCur && !S.step.revealed) show = typing ? "type" : lv; }
       else if (!S.lineRev.has(i)) show = lv;
     }
-    h += `<div class="msg ${own ? "own" : ""} ${isCur ? "current" : ""} ${show === "hidden" ? "hidden" : ""}">${avatar(speakers, l.speaker)}<div class="col">`;
+    const chk = isCur && S.step.check && S.step.check.i === i ? S.step.check : null;
+    const cls = ["msg", own && "own", isCur && "current", show === "hidden" && "hidden", (show === "type" || chk) && "typing"].filter(Boolean).join(" ");
+    h += `<div class="${cls}">${avatar(speakers, l.speaker)}<div class="col">`;
     h += `<span class="name">${own ? "Sinä · " : ""}${esc(l.speaker)}</span><div class="bubble">`;
-    if (show === "hidden") h += `<div class="blank">${I.mic}<span>Sinun vuorosi. Sano repliikki ääneen ulkomuistista.</span></div>`;
-    else if (show === "full") h += `<p class="sv" data-action="tr" data-i="${i}" title="Näytä käännös">${esc(l.text)}</p>`;
-    else h += `<p class="sv" data-action="tr" data-i="${i}">${hintHTML(i, l.text, show)}</p>`;
+    if (chk){
+      h += `<div class="verdict v-${chk.result}">${VERDICT[chk.result]}</div>`;
+      h += `<p class="sv" data-action="tr" data-i="${i}">${markedHTML(txt, chk.statuses)}</p>`;
+      if (chk.typedText !== undefined) h += `<p class="yours">Kirjoitit: ${chk.typedText ? esc(chk.typedText) : "<i>(tyhjä)</i>"}</p>`;
+    } else if (show === "type"){
+      if (S.level === 2) h += `<p class="sv typing">${typeHTML(i, txt, S.hint)}</p>`;
+      else h += `<label class="blank" for="in-${i}-full">${I.mic}<span>Kirjoita repliikkisi ulkomuistista.</span></label>
+        <textarea class="fullin" id="in-${i}-full" rows="2" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done"
+          placeholder="${S.lang === "en" ? "Type your line…" : "Skriv din replik…"}">${esc(S.step.typed[`in-${i}-full`] || "")}</textarea>`;
+    } else if (show === "hidden"){
+      h += `<div class="blank">${I.mic}<span>Sinun vuorosi. Sano repliikki ääneen ulkomuistista.</span></div>`;
+    } else if (show === "full"){
+      h += `<p class="sv" data-action="tr" data-i="${i}" title="Näytä käännös">${esc(txt)}</p>`;
+    } else {
+      h += `<p class="sv" data-action="tr" data-i="${i}">${hintHTML(i, txt, show)}</p>`;
+    }
     if (S.openTr.has(i)){
-      const en = S.trMem[l.text], st = S.trState[l.text];
-      if (en) h += `<p class="en">${esc(en)}</p>`;
-      else if (st === "loading") h += `<p class="en">Käännetään…</p>`;
-      else if (st === "error") h += `<p class="en err">Käännös ei onnistunut. <a href="${esc(gtLink(l.text))}" target="_blank" rel="noopener noreferrer">Avaa Google Kääntäjässä</a></p>`;
+      if (S.lang === "en") h += `<p class="en">${esc(l.text)}</p>`;
+      else {
+        const en = S.trMem[l.text], st = S.trState[l.text];
+        if (en) h += `<p class="en">${esc(en)}</p>`;
+        else if (st === "loading") h += `<p class="en">Käännetään…</p>`;
+        else if (st === "error") h += `<p class="en err">Käännös ei onnistunut. <a href="${esc(gtLink(l.text))}" target="_blank" rel="noopener noreferrer">Avaa Google Kääntäjässä</a></p>`;
+      }
     }
     h += `</div><div class="mini">`;
-    if (step && own && i < pos && S.step.results[i] !== undefined)
-      h += S.step.results[i] ? `<span class="badge ok">Osasin</span>` : `<span class="badge no">Harjoittelen vielä</span>`;
-    if (show !== "full") h += `<button data-action="tr" data-i="${i}" aria-label="Näytä englanninkielinen käännös">EN</button>`;
-    if (show === "full" && canSpeak) h += `<button data-action="speak" data-i="${i}" aria-label="Kuuntele ruotsiksi">${I.speak}</button>`;
+    const res = S.step.results[i];
+    if (step && own && i < pos && res) h += `<span class="badge ${RESULT_BADGE[res][0]}">${RESULT_BADGE[res][1]}</span>`;
+    const other = S.lang === "en" ? "SV" : "EN";
+    if (show !== "full" && !chk) h += `<button data-action="tr" data-i="${i}" aria-label="Näytä käännös">${other}</button>`;
+    if ((show === "full" || chk) && canSpeak) h += `<button data-action="speak" data-i="${i}" aria-label="Kuuntele">${I.speak}</button>`;
     if (!step && own && show !== "full") h += `<button data-action="revealLine" data-i="${i}">${I.eye}Näytä</button>`;
     h += `</div></div></div>`;
   });
   if (finished){
     const ownIdx = lines.map((l, i) => l.speaker === role ? i : -1).filter(i => i >= 0);
-    const graded = ownIdx.filter(i => S.step.results[i] !== undefined);
-    const ok = graded.filter(i => S.step.results[i]).length;
+    const graded = ownIdx.filter(i => S.step.results[i]);
+    const ok = graded.filter(i => S.step.results[i] === "ok").length;
+    const almost = graded.filter(i => S.step.results[i] === "almost").length;
     h += `<div class="card done"><span class="label">Käsikirjoitus läpi</span>`;
     if (graded.length){
-      const frac = ok / graded.length, C = 2 * Math.PI * 50;
-      h += `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${ok} / ${graded.length} osattu">
+      const good = ok + almost, frac = good / graded.length, C = 2 * Math.PI * 50;
+      h += `<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${good} / ${graded.length} osattu">
           <circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="10"/>
-          <circle cx="60" cy="60" r="50" fill="none" stroke="${frac === 1 ? "var(--good)" : "var(--blue-2)"}" stroke-width="10" stroke-linecap="round"
+          <circle cx="60" cy="60" r="50" fill="none" stroke="${ok === graded.length ? "var(--good)" : "var(--blue-2)"}" stroke-width="10" stroke-linecap="round"
             stroke-dasharray="${(C * frac).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 60 60)"/>
-          <text x="60" y="68" text-anchor="middle" font-size="26">${ok}/${graded.length}</text></svg>
-        <h2>${frac === 1 ? "Täydellistä! Kokeile seuraavaa tasoa." : frac >= .6 ? "Hyvin menee! Vielä kierros." : "Harjoitus tekee mestarin. Uudestaan!"}</h2>`;
+          <text x="60" y="68" text-anchor="middle" font-size="26">${good}/${graded.length}</text></svg>
+        <p class="note">${ok} oikein · ${almost} melkein · ${graded.length - good} väärin</p>
+        <h2>${ok === graded.length ? (S.lang === "en" ? "Täydellistä! Kokeile seuraavaksi ruotsiksi." : "Täydellistä! Kokeile seuraavaa tasoa.") : frac >= .6 ? "Hyvin menee! Vielä kierros." : "Harjoitus tekee mestarin. Uudestaan!"}</h2>`;
     } else {
       h += `<h2>Hyvä! Luit koko dialogin läpi.</h2><p class="note">Kun tuntuu tutulta, vaihda tasolle ${Math.min(3, S.level + 1)}.</p>`;
     }
@@ -708,13 +896,31 @@ function render(){
     else {
       const own = lines[pos].speaker === role;
       if (!own || S.level === 1) h += `<button class="btn" data-action="next" id="primary">Seuraava</button>`;
+      else if (typing){
+        if (!S.step.check) h += `<button class="btn sec" data-action="giveup">Näytä vastaus</button><button class="btn" data-action="check" id="primary">Tarkista</button>`;
+        else {
+          if (S.step.check.result !== "ok") h += `<button class="btn sec" data-action="retry">Yritä uudelleen</button>`;
+          h += `<button class="btn" data-action="next" id="primary">Seuraava</button>`;
+        }
+      }
       else if (!S.step.revealed) h += `<button class="btn" data-action="reveal" id="primary">Näytä repliikki</button>`;
       else h += `<button class="btn bad" data-action="grade" data-v="0">Harjoittelen vielä</button><button class="btn good" data-action="grade" data-v="1" id="primary">Osasin</button>`;
     }
     h += `</div></div></div>`;
   }
-  h += `<footer>Käsikirjoitukset ja asetukset tallentuvat vain tähän selaimeen. Käännökset: MyMemory.</footer>`;
+  setApp(h + FOOTER);
+}
+
+const FOOTER = `<footer>Käsikirjoitukset ja asetukset tallentuvat vain tähän selaimeen. Käännökset: MyMemory.</footer>`;
+function setApp(h){
+  const ae = document.activeElement;
+  const fid = ae && ae.id && app.contains(ae) ? ae.id : null;
+  const sel = fid && typeof ae.selectionStart === "number" ? [ae.selectionStart, ae.selectionEnd] : null;
   app.innerHTML = h;
+  if (fid){
+    const el = document.getElementById(fid);
+    if (el){ el.focus({ preventScroll: true }); if (sel && el.setSelectionRange) try{ el.setSelectionRange(sel[0], sel[1]); }catch{} }
+  }
 }
 
 /* ---------- editor ---------- */
@@ -782,9 +988,23 @@ function afterMove(){
   render();
   const el = app.querySelector(".msg.current") || app.querySelector(".done");
   if (el) el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  if (cur && cur.speaker !== role && S.autoRead) speak(cur.text);
+  if (cur && cur.speaker !== role && S.autoRead) speak(textOf(cur), S.lang);
+  if (cur && cur.speaker === role) focusTyping();
 }
-function next(){ S.step.pos++; S.step.revealed = false; afterMove(); }
+function next(){ S.step.pos++; S.step.revealed = false; S.step.check = null; afterMove(); }
+function runCheck(gaveUp){
+  const l = parse(current().text)[S.step.pos];
+  if (!l || !textOf(l)) return;
+  app.querySelectorAll(".msg.current .fill, .msg.current .fullin").forEach(el => { S.step.typed[el.id] = el.value.slice(0, 2000); });
+  const c = checkLine(S.step.pos, textOf(l));
+  if (gaveUp) c.result = "wrong";
+  S.step.check = c; S.step.revealed = true;
+  if (!S.step.results[S.step.pos]) S.step.results[S.step.pos] = c.result;
+  render();
+  if (document.activeElement && app.contains(document.activeElement)) document.activeElement.blur();
+  const el = app.querySelector(".msg.current");
+  if (el) el.scrollIntoView({ block: "center" });
+}
 
 /* ---------- events ---------- */
 app.addEventListener("click", e => {
@@ -818,15 +1038,21 @@ app.addEventListener("click", e => {
       const i = +t.dataset.i, line = parse(script.text)[i];
       if (!line) break;
       if (S.openTr.has(i)) S.openTr.delete(i); else S.openTr.add(i);
-      if (S.openTr.has(i) && !S.trMem[line.text]){ if (S.trState[line.text] === "error") delete S.trState[line.text]; translate(line.text); }
+      if (S.lang === "sv" && S.openTr.has(i) && !S.trMem[line.text]){ if (S.trState[line.text] === "error") delete S.trState[line.text]; translate(line.text); }
       render(); break;
     }
-    case "speak": { const line = parse(script.text)[+t.dataset.i]; if (line) speak(line.text); break; }
+    case "speak": { const line = parse(script.text)[+t.dataset.i]; if (line) speak(textOf(line) || line.text, textOf(line) ? S.lang : "sv"); break; }
+    case "lang": S.lang = t.dataset.v === "en" ? "en" : "sv"; LS.set("lang", S.lang); resetStep(); afterMove(); break;
+    case "answer": S.answer = t.dataset.v === "type" ? "type" : "say"; LS.set("answer", S.answer); S.step.check = null; S.step.revealed = false; render(); focusTyping(); break;
+    case "retryTr": for (const l of parse(script.text)) if (S.trState[l.text] === "error") delete S.trState[l.text]; render(); break;
+    case "check": runCheck(false); break;
+    case "giveup": runCheck(true); break;
+    case "retry": S.step.check = null; S.step.revealed = false; render(); focusTyping(); break;
     case "word": S.wordRev.add(t.dataset.k); render(); break;
     case "revealLine": S.lineRev.add(+t.dataset.i); render(); break;
     case "next": next(); break;
     case "reveal": S.step.revealed = true; render(); break;
-    case "grade": S.step.results[S.step.pos] = t.dataset.v === "1"; next(); break;
+    case "grade": S.step.results[S.step.pos] = t.dataset.v === "1" ? "ok" : "wrong"; next(); break;
     case "restart": resetStep(); afterMove(); break;
     case "settings": S.settingsOpen = !S.settingsOpen; render(); if (!S.settingsOpen){ const el = app.querySelector(".msg.current"); if (el) el.scrollIntoView({ block: "center" }); } break;
     case "tab": S.tab = t.dataset.v === "words" ? "words" : "lines"; LS.set("tab", S.tab); S.cards = null; render(); window.scrollTo(0, 0); break;
@@ -866,7 +1092,21 @@ app.addEventListener("change", e => {
   if (e.target.id === "autoRead"){ S.autoRead = e.target.checked; LS.set("autoRead", S.autoRead); }
   if (e.target.id === "rate"){ S.rate = e.target.value === "0.7" ? 0.7 : 0.9; LS.set("rate", S.rate); }
 });
+app.addEventListener("input", e => {
+  const id = e.target.id;
+  if (id && id.startsWith("in-")) S.step.typed[id] = e.target.value.slice(0, 2000);
+});
 document.addEventListener("keydown", e => {
+  const tg = e.target;
+  if (tg && tg.classList && tg.classList.contains("fill") && e.key === "Enter"){
+    e.preventDefault();
+    const all = [...app.querySelectorAll(".msg.current .fill")], k = all.indexOf(tg);
+    if (k >= 0 && k < all.length - 1) all[k + 1].focus(); else document.getElementById("primary")?.click();
+    return;
+  }
+  if (tg && tg.classList && tg.classList.contains("fullin") && e.key === "Enter" && !e.shiftKey){
+    e.preventDefault(); document.getElementById("primary")?.click(); return;
+  }
   if (e.target && e.target.id === "wordInput" && e.key === "Enter"){
     e.preventDefault(); app.querySelector('[data-action="wadd"]')?.click(); return;
   }
